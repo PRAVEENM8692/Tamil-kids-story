@@ -27,8 +27,10 @@ def draw_pollinations(prompt, dst, seed):
 
 def draw(prompt, dst):
     from PIL import Image
-    klein = (os.environ.get("MODEL") or "klein") != "schnell"      # default: FLUX.2 klein 4B drawn 16:9 (1280x720), about 105 neurons a picture; MODEL=schnell: FLUX.1 schnell, square, about 170
-    url = f"https://api.cloudflare.com/client/v4/accounts/{CF_ID}/ai/run/@cf/black-forest-labs/" + ("flux-2-klein-4b" if klein else "flux-1-schnell")
+    M = os.environ.get("MODEL") or "klein"
+    LEO = {"lucid": "@cf/leonardo/lucid-origin", "phoenix": "@cf/leonardo/phoenix-1.0"}
+    klein = M not in ("schnell",) and M not in LEO      # default: FLUX.2 klein 4B drawn 16:9 (1280x720), about 105 neurons a picture; MODEL=schnell: FLUX.1 schnell, square, about 170
+    url = f"https://api.cloudflare.com/client/v4/accounts/{CF_ID}/ai/run/" + (LEO[M] if M in LEO else "@cf/black-forest-labs/" + ("flux-2-klein-4b" if klein else "flux-1-schnell"))
     last = None
     for n in range(4):
         try:
@@ -38,7 +40,7 @@ def draw(prompt, dst):
                 body = "".join(f'--{b}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n' for k, v in parts.items()).encode() + f"--{b}--\r\n".encode()
                 req = urllib.request.Request(url, body, {"Authorization": f"Bearer {CF_TOKEN}", "Content-Type": f"multipart/form-data; boundary={b}"})
             else:
-                body = json.dumps({"prompt": prompt[:2000], "steps": 4}).encode()
+                body = json.dumps({"prompt": prompt[:2000], "width": 1280, "height": 720, "num_steps": 25} if M in LEO else {"prompt": prompt[:2000], "steps": 4}).encode()
                 req = urllib.request.Request(url, body, {"Authorization": f"Bearer {CF_TOKEN}", "Content-Type": "application/json"})
             raw = base64.b64decode(json.load(urllib.request.urlopen(req, timeout=180))["result"]["image"])
             Image.open(io.BytesIO(raw)).convert("RGB").save(dst, quality=90)
