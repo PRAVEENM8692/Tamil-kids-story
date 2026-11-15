@@ -39,3 +39,6 @@ print("thumbnail:", t.status_code, "" if t.status_code < 400 else t.text[:300])
 c = requests.post(f"{API}/commentThreads?part=snippet", headers=H, timeout=60, json={"snippet": {"videoId": vid, "topLevelComment": {"snippet": {"textOriginal": meta["pinned_comment"]}}}})
 print("comment:", c.status_code, "" if c.status_code < 400 else c.text[:300])
 print("privacy now:", requests.get(f"{API}/videos", headers=H, params={"part": "status", "id": vid}, timeout=60).json()["items"][0]["status"])
+
+if os.path.exists(f"crime/{CASE}/subs_ta.srt"):     # Tamil + English subtitle tracks (crime/subs.py), when the episode has them
+    import sys; sys.path.insert(0, "crime"); import captions; captions.H = H; captions.upload_captions(vid, CASE)

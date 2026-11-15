@@ -1,0 +1,26 @@
+name: Crime Video Captions (Tamil + English)
+on:
+  workflow_dispatch:
+    inputs:
+      case:
+        description: "case folder, e.g. tanishq (needs crime/<case>/subs_ta.srt and subs_en.srt)"
+        default: "tanishq"
+      video_id:
+        description: "YouTube video id (empty = find the video by the title in youtube.json)"
+        default: ""
+permissions:
+  contents: read
+jobs:
+  captions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+      YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+      YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+      CASE: ${{ github.event.inputs.case }}
+      VIDEO_ID: ${{ github.event.inputs.video_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install requests
+      - run: python crime/captions.py
