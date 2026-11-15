@@ -2,7 +2,9 @@
 Env: CF_ACCOUNT_ID, CF_API_TOKEN. ONLY = scene numbers to draw (comma separated, empty = all still missing). Writes out/NN.jpg."""
 import base64, io, json, os, sys, time, urllib.error, urllib.request
 
-CF_ID, CF_TOKEN = os.environ.get("CF_ACCOUNT_ID"), os.environ.get("CF_API_TOKEN")
+ACCTS = [(i.strip(), t.strip()) for i, t in ((os.environ.get("CF_ACCOUNT_ID"), os.environ.get("CF_API_TOKEN")), (os.environ.get("CF_ACCOUNT_ID_2"), os.environ.get("CF_API_TOKEN_2"))) if i and t]
+CUR = 0     # index of the Cloudflare account in use; moves to the next one when the daily free limit (HTTP 429, code 4006) is hit
+CF_ID, CF_TOKEN = ACCTS[0] if ACCTS else (None, None)
 SCENES = os.environ.get("SCENES") or "crime/alavandar/scenes.json"
 STYLE = ("Indian crime comic book illustration, bold clean black ink outlines, flat colours with soft cel shading, "
          "muted vintage palette of sepia, teal and amber, dramatic film-noir lighting, richly detailed background, expressive faces, cinematic. ")
@@ -26,13 +28,15 @@ def draw_pollinations(prompt, dst, seed):
     print("picture failed:", last); return False
 
 def draw(prompt, dst):
+    global CUR
     from PIL import Image
     M = os.environ.get("MODEL") or "klein"
     LEO = {"lucid": "@cf/leonardo/lucid-origin", "phoenix": "@cf/leonardo/phoenix-1.0"}
     klein = M not in ("schnell",) and M not in LEO      # default: FLUX.2 klein 4B drawn 16:9 (1280x720), about 105 neurons a picture; MODEL=schnell: FLUX.1 schnell, square, about 170
-    url = f"https://api.cloudflare.com/client/v4/accounts/{CF_ID}/ai/run/" + (LEO[M] if M in LEO else "@cf/black-forest-labs/" + ("flux-2-klein-4b" if klein else "flux-1-schnell"))
     last = None
-    for n in range(4):
+    for n in range(4 + len(ACCTS)):
+        CF_ID, CF_TOKEN = ACCTS[CUR]
+        url = f"https://api.cloudflare.com/client/v4/accounts/{CF_ID}/ai/run/" + (LEO[M] if M in LEO else "@cf/black-forest-labs/" + ("flux-2-klein-4b" if klein else "flux-1-schnell"))
         try:
             if klein:
                 b = "----crimeboundary7f3a"
@@ -45,13 +49,16 @@ def draw(prompt, dst):
             raw = base64.b64decode(json.load(urllib.request.urlopen(req, timeout=180))["result"]["image"])
             Image.open(io.BytesIO(raw)).convert("RGB").save(dst, quality=90)
             return True
-        except urllib.error.HTTPError as e: last = f"HTTP {e.code}: {e.read()[:300]!r}"
+        except urllib.error.HTTPError as e:
+            last = f"HTTP {e.code}: {e.read()[:300]!r}"
+            if e.code == 429 and "4006" in last and CUR + 1 < len(ACCTS):
+                CUR += 1; print(f"account {CUR} hit the daily limit, switching to account {CUR + 1}"); continue
         except Exception as e: last = str(e)
         time.sleep(4 * (n + 1))
     print("picture failed:", last); return False
 
 POLL = (os.environ.get("MODEL") or "") == "pollinations"
-if not POLL and not (CF_ID and CF_TOKEN):
+if not POLL and not ACCTS:
     raise SystemExit("CF_ACCOUNT_ID / CF_API_TOKEN secrets are not set on this repo (Settings > Secrets and variables > Actions)")
 redo = {int(x) for x in (os.environ.get("REDO") or "").replace(" ", "").split(",") if x}
 only = {int(x) for x in (os.environ.get("ONLY") or "").replace(" ", "").split(",") if x}
