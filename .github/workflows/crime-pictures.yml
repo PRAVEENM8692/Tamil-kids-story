@@ -9,7 +9,7 @@ on:
         description: "Scene numbers to draw, comma separated (empty = all that are still missing)"
         default: ""
       model:
-        description: "empty = FLUX.2 klein 4B drawn 16:9 (default); schnell = old square FLUX.1 schnell"
+        description: "empty = FLUX.2 klein 4B drawn 16:9 (default); schnell = old square FLUX.1 schnell; pollinations = free pollinations.ai FLUX 16:9, no Cloudflare quota"
         default: ""
       redo:
         description: "Scene numbers to draw again even if a picture exists"

@@ -8,6 +8,23 @@ STYLE = ("Indian crime comic book illustration, bold clean black ink outlines, f
          "muted vintage palette of sepia, teal and amber, dramatic film-noir lighting, richly detailed background, expressive faces, cinematic. ")
 END = " Clean floor, calm tidy scene. Nothing cut off at the frame edges. No text, no letters, no numbers, no captions, no watermark, no border."
 
+def draw_pollinations(prompt, dst, seed):
+    """Free, no key: pollinations.ai FLUX, drawn 16:9 (1280x720)."""
+    from PIL import Image
+    import urllib.parse
+    last = None
+    for n in range(4):
+        try:
+            u = "https://image.pollinations.ai/prompt/" + urllib.parse.quote(prompt[:1500]) + f"?width=1280&height=720&model=flux&nologo=true&private=true&seed={seed + n}"
+            raw = urllib.request.urlopen(urllib.request.Request(u, headers={"User-Agent": "Mozilla/5.0"}), timeout=240).read()
+            im = Image.open(io.BytesIO(raw)).convert("RGB")
+            if im.width < 800: raise ValueError(f"unexpected size {im.size}")
+            im.save(dst, quality=90); return True
+        except urllib.error.HTTPError as e: last = f"HTTP {e.code}: {e.read()[:200]!r}"
+        except Exception as e: last = str(e)
+        time.sleep(8 * (n + 1))
+    print("picture failed:", last); return False
+
 def draw(prompt, dst):
     from PIL import Image
     klein = (os.environ.get("MODEL") or "klein") != "schnell"      # default: FLUX.2 klein 4B drawn 16:9 (1280x720), about 105 neurons a picture; MODEL=schnell: FLUX.1 schnell, square, about 170
@@ -31,7 +48,8 @@ def draw(prompt, dst):
         time.sleep(4 * (n + 1))
     print("picture failed:", last); return False
 
-if not (CF_ID and CF_TOKEN):
+POLL = (os.environ.get("MODEL") or "") == "pollinations"
+if not POLL and not (CF_ID and CF_TOKEN):
     raise SystemExit("CF_ACCOUNT_ID / CF_API_TOKEN secrets are not set on this repo (Settings > Secrets and variables > Actions)")
 redo = {int(x) for x in (os.environ.get("REDO") or "").replace(" ", "").split(",") if x}
 only = {int(x) for x in (os.environ.get("ONLY") or "").replace(" ", "").split(",") if x}
@@ -42,7 +60,8 @@ for s in json.load(open(SCENES, encoding="utf-8"))["shots"]:
     if s["n"] in redo and os.path.exists(f): os.remove(f)
     if (only and s["n"] not in only) or (not only and os.path.exists(f)): continue
     style = STYLE.replace("expressive faces, ", "") + "Objects only, absolutely no people, no faces, no portraits. " if s["scene"].startswith(("Still life", "A clean anatomy", "Empty")) else STYLE
-    if draw(style + s["scene"] + END, f): done.append(s["n"]); fails = 0; print(f"picture {s['n']:02d} drawn")
+    ok = draw_pollinations(style + s["scene"] + END, f, 1000 + s["n"]) if POLL else draw(style + s["scene"] + END, f)
+    if ok: done.append(s["n"]); fails = 0; print(f"picture {s['n']:02d} drawn")
     else:
         fails += 1
         if fails >= 3: print("3 failures in a row (daily free limit?), stopping"); break
