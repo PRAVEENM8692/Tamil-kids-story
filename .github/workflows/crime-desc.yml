@@ -1,0 +1,26 @@
+name: Crime Description Line
+on:
+  workflow_dispatch:
+    inputs:
+      video_id:
+        description: "YouTube video id"
+        required: true
+      line:
+        description: "line to put at the top of the description"
+        required: true
+permissions:
+  contents: read
+jobs:
+  desc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+      YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+      YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+      VIDEO_ID: ${{ github.event.inputs.video_id }}
+      LINE: ${{ github.event.inputs.line }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install requests
+      - run: python crime/desc_prepend.py
