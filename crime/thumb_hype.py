@@ -9,7 +9,7 @@ TAMIL = "/usr/share/fonts/truetype/freefont/FreeSerifBold.ttf"; SANS = "/usr/sha
 W, H = 1280, 720; YEL = (255, 214, 51); RED = (200, 16, 24)
 import os
 THEME = os.environ.get("THEME", "red")   # red (default) or yellow: rotate the design, keep the pattern
-B1BG, B1FG, B2BG, B2FG = ((RED, YEL, (250, 250, 250), (170, 10, 20)) if THEME != "yellow" else (YEL, (170, 10, 20), (15, 15, 20), (255, 255, 255)))
+B1BG, B1FG, B2BG, B2FG = {"yellow": (YEL, (170, 10, 20), (15, 15, 20), (255, 255, 255)), "blue": ((15, 45, 140), YEL, (250, 250, 250), (200, 10, 25))}.get(THEME, (RED, YEL, (250, 250, 250), (170, 10, 20)))
 src = Image.open(pic).convert("RGB"); src = src.crop((14, 14, src.width - 14, src.height - 14)).resize((W, H))
 im = ImageEnhance.Contrast(ImageEnhance.Color(src).enhance(1.25)).enhance(1.15); d = ImageDraw.Draw(im)
 def fit(t, p, s, w):
@@ -17,7 +17,7 @@ def fit(t, p, s, w):
     return ImageFont.truetype(p, s)
 # banner 1: red with yellow text
 d.rectangle((0, 0, W, 150), fill=B1BG); d.rectangle((0, 150, W, 158), fill=(255, 255, 255))
-f = fit(b1, TAMIL, 118, W - 60); d.text((W // 2, 78), b1, font=f, fill=B1FG, anchor="mm", stroke_width=6, stroke_fill=(60, 0, 0) if THEME != "yellow" else (255, 255, 255))
+f = fit(b1, TAMIL, 118, W - 60); d.text((W // 2, 78), b1, font=f, fill=B1FG, anchor="mm", stroke_width=6, stroke_fill={"yellow": (255, 255, 255), "blue": (0, 10, 50)}.get(THEME, (60, 0, 0)))
 # banner 2: white with black/red text
 d.rectangle((0, 158, W, 262), fill=B2BG); d.rectangle((0, 262, W, 268), fill=(0, 0, 0))
 f = fit(b2, TAMIL, 96, W - 60); d.text((W // 2, 212), b2, font=f, fill=B2FG, anchor="mm", stroke_width=3, stroke_fill=(0, 0, 0))
