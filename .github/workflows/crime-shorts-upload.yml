@@ -1,0 +1,27 @@
+name: Crime Shorts Upload (private)
+on:
+  workflow_dispatch:
+    inputs:
+      case:
+        default: "uthra"
+      full:
+        description: "link of the full episode"
+        default: "https://youtu.be/oYWyz1SFCK0"
+permissions:
+  contents: read
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+      YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+      YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+      CASE: ${{ github.event.inputs.case }}
+      FULL: ${{ github.event.inputs.full }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install requests
+      - run: |
+          mkdir shorts && git fetch -q --depth 1 origin shorts-${CASE} && git --work-tree=shorts checkout FETCH_HEAD -- . && git reset -q
+      - run: python crime/shorts_upload.py
