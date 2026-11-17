@@ -1,0 +1,33 @@
+name: Crime Shorts From Episode
+on:
+  workflow_dispatch:
+    inputs:
+      case:
+        description: "case folder name under crime/ (needs crime/<case>/shorts.json and a built video-<case> branch)"
+        default: "uthra"
+permissions:
+  contents: write
+jobs:
+  shorts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      CASE: ${{ github.event.inputs.case }}
+      FONT: Noto Sans Tamil
+      FONTSDIR: /usr/share/fonts/truetype/noto
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ffmpeg fonts-noto-core libass9
+      - name: Get the finished episode
+        run: |
+          mkdir -p ep
+          git fetch -q --depth 1 origin video-${CASE} && git --work-tree=ep checkout FETCH_HEAD -- . && git reset -q
+      - run: python3 crime/shorts.py ${CASE} ep/${CASE}.mp4 out
+      - name: Save the Shorts to the shorts-${CASE} branch
+        run: |
+          mkdir /tmp/sh && cp out/*.mp4 /tmp/sh/
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          git checkout -q --orphan shorts-${CASE} && git rm -rfq . && cp /tmp/sh/*.mp4 . && git add *.mp4
+          git commit -qm "${CASE} shorts" && git push -f origin shorts-${CASE}
