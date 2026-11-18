@@ -30,11 +30,11 @@ Style: foot,{FONT},52,&H0000F0FF,&H000000FF,&H00000000,&H80000000,1,0,0,0,100,10
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
-    ass += f"Dialogue: 1,{ts(0)},{ts(4.2)},hook,,0,0,0,,{{\\fad(150,350)}}{sp['hook']}\n"
+    if sp.get("hook"): ass += f"Dialogue: 1,{ts(0)},{ts(4.2)},hook,,0,0,0,,{{\\fad(150,350)}}{sp['hook']}\n"
     for k in range(sp["from_cue"], sp["to_cue"] + 1):
         a, e, tx = cues[k]
         ass += f"Dialogue: 0,{ts(a - t0)},{ts(min(e, t1) - t0)},cap,,0,0,1290,,{tx}\n"
-    ass += f"Dialogue: 0,{ts(0)},{ts(t1 - t0)},foot,,0,0,0,,{sp.get('tail', 'முழு எபிசோட்: Solved Crime Files - Tamil')}\n"
+    if sp.get("tail", "x"): ass += f"Dialogue: 0,{ts(0)},{ts(t1 - t0)},foot,,0,0,0,,{sp.get('tail', 'முழு எபிசோட்: Solved Crime Files - Tamil')}\n"
     af = f"{OUT}/{sp['id']}.ass"; open(af, "w", encoding="utf-8").write(ass)
     fc = ("[0:v]split[a][b];[a]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=40:6,eq=brightness=-0.18[bg];"
           "[b]scale=1080:-2[fg];[bg][fg]overlay=0:(H-h)/2-120,"
