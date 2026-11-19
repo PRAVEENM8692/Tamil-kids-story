@@ -3,7 +3,7 @@ Prompts come from crime/<case>/thumb_prompts.json: {"a": "...", "b": "..."}. Out
 import base64, io, json, os, sys, requests
 from PIL import Image
 CASE = os.environ["CASE"]; KEY = os.environ["GEMINI_API_KEY"]
-MODELS = [m for m in os.environ.get("MODELS", "gemini-2.5-flash-image,gemini-3.1-flash-image-preview,gemini-3-pro-image-preview,gemini-2.0-flash-preview-image-generation,gemini-2.0-flash-exp-image-generation").split(",") if m]
+MODELS = [m for m in (os.environ.get("MODELS") or "gemini-2.5-flash-image,gemini-3.1-flash-image-preview,gemini-3-pro-image-preview,gemini-2.0-flash-preview-image-generation,gemini-2.0-flash-exp-image-generation").split(",") if m]
 P = json.load(open(f"crime/{CASE}/thumb_prompts.json", encoding="utf-8")); os.makedirs("out", exist_ok=True)
 SUFFIX = " Photorealistic cinematic photograph, 16:9 wide frame, dramatic moody lighting, shallow depth of field, no text, no letters, no logos, no watermark, no identifiable real person, faces not visible."
 ok = 0
