@@ -4,11 +4,22 @@ API = "https://www.googleapis.com/youtube/v3"
 r = requests.post("https://oauth2.googleapis.com/token", timeout=60, data={"client_id": os.environ["YT_CLIENT_ID"], "client_secret": os.environ["YT_CLIENT_SECRET"], "refresh_token": os.environ["YT_REFRESH_TOKEN"], "grant_type": "refresh_token"})
 r.raise_for_status(); T = r.json()["access_token"]; H = {"Authorization": f"Bearer {T}"}
 print("key permissions:", [s.rsplit("/", 1)[-1] for s in requests.get("https://oauth2.googleapis.com/tokeninfo", params={"access_token": T}, timeout=60).json().get("scope", "").split()])
+
+def find_shorts():
+    up = requests.get(f"{API}/channels", headers=H, params={"part": "contentDetails", "mine": "true"}, timeout=60).json()["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
+    out, tok = [], None
+    while True:
+        d = requests.get(f"{API}/playlistItems", headers=H, params={"part": "snippet", "playlistId": up, "maxResults": 50, **({"pageToken": tok} if tok else {})}, timeout=60).json()
+        for i in d.get("items", []):
+            if "முழு எபிசோட்" in (i["snippet"].get("description") or ""): out.append(i["snippet"]["resourceId"]["videoId"])
+        tok = d.get("nextPageToken")
+        if not tok: break
+    print("Shorts found on the channel:", len(out)); return out
 PL = [
  ("பழைய வழக்குகள் | Older Solved Cases", "2026-க்கு முன் நடந்த தீர்ந்த வழக்குகள்.", ["RfsLccFhTGM", "SwKOLgA6htU", "fVTeuVVa2A0", "dnmYgxEv2qc", "oYWyz1SFCK0", "eEn4tz1mMp0"], "பழைய வழக்குகள் | Old Solved Cases"),
  ("புதிய 2026 வழக்குகள் | New 2026 Cases", "2026-ல நடந்த, இப்போ பேசப்படற வழக்குகள்.", ["z9_ZLjTbRu8", "mnRiXwOWtL4"], "புதிய வழக்குகள் | New Solved Cases"),
  ("வழக்கு அப்டேட் | Case Updates", "நம்ம வழக்குகளோட இப்போதைய நிலவரம்.", [], None),
- ("ஷார்ட்ஸ் | Crime Shorts", "எல்லா வழக்குகளோட Shorts.", ['s2gJmr6Hghk', 'Xs18ciYFa_s', '6ZApSPaRf20', 'UNeTkkhQM_w', '8ugQE1Rr_UE', 'JWBOE9FUDvU', 'ac9u32Eg00Y', '9W-0XNjFEBk', 'zHmxfMjFxBc', 'VXHpaMiqPeo', 'ilqecf2Ehi8', 'dhUpk_yPP48', 'Jlv4KFRcxj8', 'GlfIjAxbfis', 'gcMTRT4GYWI', 'e-BLeuLNQ7k', 'rTO7UsER20s', '-yMWAWc1TnI', 'G3EeG8OVEw4', 'f2-KWTRc5II', 'uJ6LmmEikUE', 'pfaOUShVJX0', '_oUh1G-VxSY', 'q2w2DwEfqNw'], None),
+ ("ஷார்ட்ஸ் | Crime Shorts", "எல்லா வழக்குகளோட Shorts.", find_shorts(), None),
 ]
 have = {}
 tok = None
