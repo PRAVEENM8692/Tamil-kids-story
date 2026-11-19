@@ -1,0 +1,39 @@
+name: Crime Manim Animations
+on:
+  workflow_dispatch:
+    inputs:
+      case:
+        description: "case folder name (clips go to the branch manim-<case>)"
+        default: "senji2"
+      scenes:
+        description: "scene class names from crime/manim_scenes.py, comma separated"
+        default: "SenjiTowerDump,SenjiFoundNot"
+permissions:
+  contents: write
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      CASE: ${{ github.event.inputs.case }}
+      SCENES: ${{ github.event.inputs.scenes }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ffmpeg fonts-noto-core libcairo2-dev libpango1.0-dev pkg-config python3-dev
+          pip install manim numpy
+      - name: Render the scenes (1280x720, 30 fps)
+        run: |
+          mkdir -p clips
+          for s in $(echo "$SCENES" | tr ',' ' '); do
+            manim -qh -r 1280,720 --fps 30 --media_dir /tmp/media -o "$s" crime/manim_scenes.py "$s"
+            f=$(find /tmp/media/videos -name "$s.mp4" | head -1); cp "$f" clips/"$s".mp4
+            echo "$s $(ffprobe -v error -show_entries format=duration -of csv=p=0 clips/$s.mp4) s"
+          done
+      - name: Save the clips to the manim-${CASE} branch
+        run: |
+          cp -r clips /tmp/clips
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          git checkout -q --orphan manim-${CASE} && git rm -rfq . && cp /tmp/clips/*.mp4 . && git add *.mp4
+          git commit -qm "${CASE} manim clips" && git push -f origin manim-${CASE}

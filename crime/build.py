@@ -108,6 +108,19 @@ run("ffmpeg", "-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", f"{WORK}/
     "-vf", f"fps={FPS},ass={WORK}/tags.ass,format=yuv420p", "-c:v", "libx264", "-preset", "medium", "-crf", "23", "-tune", "stillimage",
     "-c:a", "aac", "-b:a", "160k", "-shortest", "-movflags", "+faststart", f"{WORK}/main.mp4")
 
+# ---- Manim animations: full-frame clips laid over the pictures from their cue for their own length (plan.json "animations": [{"sec","cue","clip","for"}])
+ANIM = os.environ.get("MANIM") or "manim"
+anims = [a for a in plan.get("animations", []) if os.path.exists(f"{ANIM}/{a['clip']}.mp4")]
+if anims:
+    ins2, chain, last = [], [], "0:v"
+    for k, a in enumerate(anims):
+        t0 = when(a["sec"], a.get("cue")) + a.get("delay", 0.2); t1 = min(t0 + min(a.get("for", 99), dur(f"{ANIM}/{a['clip']}.mp4")), TOTAL)
+        ins2 += ["-i", f"{ANIM}/{a['clip']}.mp4"]
+        chain.append(f"[{k + 1}:v]setpts=PTS-STARTPTS+{t0:.3f}/TB,scale={W}:{H},format=yuv420p[an{k}];[{last}][an{k}]overlay=enable='between(t,{t0:.3f},{t1:.3f})':eof_action=pass:format=auto[o{k}]")
+        last = f"o{k}"
+    run("ffmpeg", "-v", "error", "-y", "-i", f"{WORK}/main.mp4", *ins2, "-filter_complex", ";".join(chain), "-map", f"[{last}]", "-map", "0:a", "-c:v", "libx264", "-preset", "medium", "-crf", "23", "-c:a", "copy", "-movflags", "+faststart", f"{WORK}/main_anim.mp4")
+    os.replace(f"{WORK}/main_anim.mp4", f"{WORK}/main.mp4"); print(f"manim clips used: {[a['clip'] for a in anims]}")
+
 # ---- channel intro (title clip, channel name, EPISODE card) right after the hook (script section 01)
 if plan.get("episode"):
     import sys; sys.path.insert(0, "crime"); import intro
