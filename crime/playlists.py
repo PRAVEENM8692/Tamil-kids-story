@@ -8,6 +8,7 @@ PL = [
  ("பழைய வழக்குகள் | Older Solved Cases", "2026-க்கு முன் நடந்த தீர்ந்த வழக்குகள்.", ["RfsLccFhTGM", "SwKOLgA6htU", "fVTeuVVa2A0", "dnmYgxEv2qc", "oYWyz1SFCK0", "eEn4tz1mMp0"], "பழைய வழக்குகள் | Old Solved Cases"),
  ("புதிய 2026 வழக்குகள் | New 2026 Cases", "2026-ல நடந்த, இப்போ பேசப்படற வழக்குகள்.", ["z9_ZLjTbRu8", "mnRiXwOWtL4"], "புதிய வழக்குகள் | New Solved Cases"),
  ("வழக்கு அப்டேட் | Case Updates", "நம்ம வழக்குகளோட இப்போதைய நிலவரம்.", [], None),
+ ("ஷார்ட்ஸ் | Crime Shorts", "எல்லா வழக்குகளோட Shorts.", ['s2gJmr6Hghk', 'Xs18ciYFa_s', '6ZApSPaRf20', 'UNeTkkhQM_w', '8ugQE1Rr_UE', 'JWBOE9FUDvU', 'ac9u32Eg00Y', '9W-0XNjFEBk', 'zHmxfMjFxBc', 'VXHpaMiqPeo', 'ilqecf2Ehi8', 'dhUpk_yPP48', 'Jlv4KFRcxj8', 'GlfIjAxbfis', 'gcMTRT4GYWI', 'e-BLeuLNQ7k', 'rTO7UsER20s', '-yMWAWc1TnI', 'G3EeG8OVEw4', 'f2-KWTRc5II', 'uJ6LmmEikUE', 'pfaOUShVJX0', '_oUh1G-VxSY', 'q2w2DwEfqNw'], None),
 ]
 have = {}
 tok = None
