@@ -3,5 +3,15 @@
   "ep": 9,
   "case": "cyanidemohan",
   "layout": "evidence-board + tilted labels (thumb_layouts.py board)"
+ },
+ {
+  "ep": 10,
+  "case": "senji1",
+  "layout": "circle + callout (thumb_layouts.py circle)"
+ },
+ {
+  "ep": 11,
+  "case": "senji2",
+  "layout": "split scenes (thumb_layouts.py split)"
  }
 ]
