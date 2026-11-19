@@ -1,0 +1,32 @@
+name: Crime Thumbnail Pictures (Gemini)
+on:
+  workflow_dispatch:
+    inputs:
+      case:
+        description: "case folder under crime/"
+        default: "cyanidemohan"
+      models:
+        description: "comma separated model names (empty = try the usual list)"
+        default: ""
+permissions:
+  contents: write
+jobs:
+  thumb:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      CASE: ${{ github.event.inputs.case }}
+      MODELS: ${{ github.event.inputs.models }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install pillow requests
+      - run: python crime/thumb_gemini.py
+      - name: Save to the thumbpics-${CASE} branch
+        if: always()
+        run: |
+          ls out/thumb_*.jpg >/dev/null 2>&1 || exit 0
+          mkdir -p /tmp/s && cp out/thumb_*.jpg /tmp/s/
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          git checkout -q --orphan thumbpics-${CASE} && git rm -rfq . && cp /tmp/s/*.jpg . && git add *.jpg
+          git commit -qm "${CASE} thumbnail pictures" && git push -f origin thumbpics-${CASE}
