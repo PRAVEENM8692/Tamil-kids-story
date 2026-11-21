@@ -13,5 +13,10 @@
   "ep": 11,
   "case": "senji2",
   "layout": "split scenes (thumb_layouts.py split)"
+ },
+ {
+  "ep": 12,
+  "case": "tanishq3",
+  "layout": "evidence-board (thumb_layouts.py board)"
  }
 ]
