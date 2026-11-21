@@ -72,3 +72,17 @@ class TanishqRecovery(Scene):      # tanishq3: stolen vs recovered jewellery, as
         self.play(GrowFromEdge(r3, LEFT), FadeIn(t3), run_time=1.3)
         note = T("இறுதிக் கணக்கு போலீஸ் உறுதிப்படுத்தவில்லை", 26, YELLOW).to_edge(DOWN, buff=0.6)
         self.play(FadeIn(note), run_time=0.8); self.wait(4.5)
+
+
+class SamayapuramRoute(Scene):     # samayapuram: Trichy to Thoothukudi, about 300 km (about 10 s)
+    def construct(self):
+        ttl = title("முந்நூறு கிலோமீட்டர் ஓட்டம்"); self.play(Write(ttl), run_time=1.0)
+        a = Dot(LEFT * 4.5 + UP * 1.2, radius=0.2, color=YEL); b = Dot(RIGHT * 4.0 + DOWN * 1.6, radius=0.2, color=RED)
+        la = T("திருச்சி · சமயபுரம்", 28, YEL).next_to(a, UP, buff=0.3); lb = T("தூத்துக்குடி", 28, RED).next_to(b, DOWN, buff=0.3)
+        self.play(FadeIn(a), FadeIn(la), FadeIn(b), FadeIn(lb), run_time=1.0)
+        line = DashedLine(a.get_center(), b.get_center(), color=WHITE, dash_length=0.18, stroke_width=4)
+        car = Dot(a.get_center(), radius=0.14, color=GRN)
+        self.play(Create(line), MoveAlongPath(car, Line(a.get_center(), b.get_center())), run_time=3.0)
+        km = T("சுமார் 300 கி.மீ", 40, WHITE).move_to(ORIGIN + UP * 0.2).rotate(-0.35)
+        self.play(FadeIn(km), run_time=0.8)
+        note = T("சிசிடிவி காட்டிக் கொடுத்தது", 30, GRN).to_edge(DOWN, buff=0.6); self.play(FadeIn(note), run_time=0.8); self.wait(2.0)
