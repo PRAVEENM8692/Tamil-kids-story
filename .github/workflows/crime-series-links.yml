@@ -1,0 +1,26 @@
+name: Crime Series Links
+on:
+  workflow_dispatch:
+    inputs:
+      series:
+        description: "series key from crime/series.json (empty = all)"
+        default: ""
+      dry:
+        description: "1 = only print what would change"
+        default: "0"
+permissions:
+  contents: read
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+      YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+      YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+      SERIES: ${{ github.event.inputs.series }}
+      DRY: ${{ github.event.inputs.dry == '1' && '1' || '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install requests
+      - run: python crime/series.py
