@@ -51,3 +51,24 @@ class SenjiFoundNot(Scene):        # part 2: what has and has not been found (ab
             b = VGroup(T("✖", 30, RED), T(R[k][0], 28, WHITE, NORMAL)).arrange(RIGHT, buff=0.25).move_to(RIGHT * 3.3 + UP * (0.6 - 0.9 * k))
             self.play(FadeIn(a, shift=RIGHT * 0.3), FadeIn(b, shift=LEFT * 0.3), run_time=1.1)
         self.wait(3.5)
+
+
+class TanishqRecovery(Scene):      # tanishq3: stolen vs recovered jewellery, as reported (about 14 s)
+    def construct(self):
+        ttl = title("நகை கணக்கு (செய்திகள் படி)"); self.play(Write(ttl), run_time=1.0)
+        W = 9.0; k = W / 11.384
+        base = LEFT * 4.5
+        def bar(y, val, col, label):
+            r = Rectangle(width=val * k, height=0.7, color=col, fill_color=col, fill_opacity=0.85, stroke_width=0)
+            r.move_to(base + RIGHT * (val * k / 2) + UP * y)
+            t = T(label, 26, WHITE, NORMAL).next_to(r, UP, buff=0.12).align_to(r, LEFT)
+            return r, t
+        r1, t1 = bar(1.2, 11.384, RED, "திருடு போனது · 11.384 கிலோ")
+        self.play(GrowFromEdge(r1, LEFT), FadeIn(t1), run_time=1.6)
+        r2, t2 = bar(-0.3, 5.0, GRN, "முதல் மீட்பு · சுமார் 5 கிலோ")
+        self.play(GrowFromEdge(r2, LEFT), FadeIn(t2), run_time=1.3)
+        r3, t3 = bar(-1.8, 6.4, GRN, "மலையடிவாரம் · சுமார் 6.4 கிலோ")
+        r3.shift(RIGHT * 5.0 * k); t3.shift(RIGHT * 5.0 * k)
+        self.play(GrowFromEdge(r3, LEFT), FadeIn(t3), run_time=1.3)
+        note = T("இறுதிக் கணக்கு போலீஸ் உறுதிப்படுத்தவில்லை", 26, YELLOW).to_edge(DOWN, buff=0.6)
+        self.play(FadeIn(note), run_time=0.8); self.wait(4.5)
