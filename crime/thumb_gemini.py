@@ -6,11 +6,12 @@ CASE = os.environ["CASE"]; KEY = os.environ["GEMINI_API_KEY"]
 MODELS = [m for m in (os.environ.get("MODELS") or "gemini-2.5-flash-image,gemini-3.1-flash-image-preview,gemini-3-pro-image-preview,gemini-2.0-flash-preview-image-generation,gemini-2.0-flash-exp-image-generation").split(",") if m]
 P = json.load(open(f"crime/{CASE}/thumb_prompts.json", encoding="utf-8")); os.makedirs("out", exist_ok=True)
 SUFFIX = " Photorealistic cinematic photograph, 16:9 wide frame, dramatic moody lighting, shallow depth of field, no text, no letters, no logos, no watermark, no identifiable real person, faces not visible."
+SUFFIX_FULL = " 16:9 wide YouTube thumbnail, hyper-saturated, very high contrast, cinematic dramatic rim lighting, eye-catching. No watermark, no logos, no real identifiable person: faces hidden in shadow or silhouette."   # keys starting with full_ may contain text in the prompt
 ok = 0
 for k, prompt in P.items():
     done = False
     for m in MODELS:
-        body = {"contents": [{"parts": [{"text": prompt + SUFFIX}]}], "generationConfig": {"responseModalities": ["IMAGE"], "imageConfig": {"aspectRatio": "16:9"}}}
+        body = {"contents": [{"parts": [{"text": prompt + (SUFFIX_FULL if k.startswith("full_") else SUFFIX)}]}], "generationConfig": {"responseModalities": ["IMAGE"], "imageConfig": {"aspectRatio": "16:9"}}}
         r = requests.post(f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent", headers={"x-goog-api-key": KEY}, json=body, timeout=180)
         if r.status_code >= 400:
             print(f"[{k}] {m}: HTTP {r.status_code} {r.text[:160].replace(chr(10), ' ')}"); continue
