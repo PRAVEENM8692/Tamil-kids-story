@@ -17,6 +17,6 @@
  {
   "ep": 12,
   "case": "tanishq3",
-  "layout": "evidence-board (thumb_layouts.py board)"
+  "layout": "photo circle + masked figure + yellow strip (HTML/Playwright, ZWNJ fix for னா)"
  }
 ]
