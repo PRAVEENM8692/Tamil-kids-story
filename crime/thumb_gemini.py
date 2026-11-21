@@ -1,6 +1,6 @@
 """Draw realistic thumbnail pictures (16:9) with Google Gemini image models using GEMINI_API_KEY. Tries the models in order and prints exactly which worked.
 Prompts come from crime/<case>/thumb_prompts.json: {"a": "...", "b": "..."}. Output: out/thumb_<key>.jpg. No real person's likeness is ever requested."""
-import base64, io, json, os, sys, requests
+import base64, io, json, os, requests
 from PIL import Image
 CASE = os.environ["CASE"]; KEY = os.environ["GEMINI_API_KEY"]
 MODELS = [m for m in (os.environ.get("MODELS") or "gemini-2.5-flash-image,gemini-3.1-flash-image-preview,gemini-3-pro-image-preview,gemini-2.0-flash-preview-image-generation,gemini-2.0-flash-exp-image-generation").split(",") if m]

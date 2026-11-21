@@ -3,7 +3,7 @@ Usage: python3 crime/shorts.py CASE VIDEO.mp4 OUTDIR     (reads crime/CASE/short
 shorts.json = [{"id": "a", "from_cue": 67, "to_cue": 76, "hook": "…", "tail": "…"}]   cue numbers are those of subs_ta.srt
 Layout: blurred copy of the picture fills the screen, the sharp 16:9 picture sits in the middle, a red hook box on top for the first seconds,
 Tamil captions below the picture, and a 'full episode' line at the bottom. Audio (voice + music) is kept from the episode."""
-import json, os, re, subprocess, sys
+import json, os, subprocess, sys
 CASE, VIDEO, OUT = sys.argv[1:4]
 FONT = os.environ.get("FONT") or "FreeSerif"
 FONTSDIR = os.environ.get("FONTSDIR") or "/usr/share/fonts/truetype/freefont"

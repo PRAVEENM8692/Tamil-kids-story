@@ -2,7 +2,7 @@
 DO = check (read only) | kids_off (channel 'made for kids' -> No) | private_old (make every public/unlisted video private)
      | about (set description/keywords from crime/channel_about.json)
      | banner (upload assets/crime_banner.png as the channel banner) | about_banner (both). Nothing is ever deleted."""
-import json, os, sys
+import json, os
 import requests
 
 DO = (os.environ.get("DO") or "check").strip()
