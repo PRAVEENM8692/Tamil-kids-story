@@ -16,5 +16,7 @@ The video is uploaded PRIVATE; the owner makes it Public himself and pins the co
 ## Standing rule added 2026-11-21: multi-part cases link all their parts
 Whenever a part of a multi-part case is uploaded (Part 2, Part 3 ...), add its video id to crime/series.json (series key = the case, parts in order) and run the "Crime Series Links" workflow: every part's description then starts with one line linking all parts (replaces older single-part link lines). Do this right after the upload, without asking.
 
-## Like / Subscribe buttons (added 2026-11-21)
-Every episode's plan.json gets "buttons": one mid-video where the narrator first asks for a comment/guess, one at the closing line ("உங்க கருத்தைக்..."), e.g. {"sec":"06","cue":"உங்க யூகத்தைக்"}, {"sec":"10","cue":"உங்க கருத்தைக்"}. build.py lays assets/crime_subscribe.mov (made by crime/subbtn.py) bottom-left.
+## Like / Subscribe buttons (added 2026-11-21, one by one in the bottom-left corner)
+Every episode's plan.json gets "buttons": LIKE alone near the middle, SUBSCRIBE alone a little later, then both together at the closing line. Example:
+"buttons": [{"sec":"05","cue":null,"clip":"like"}, {"sec":"07","cue":null,"clip":"sub"}, {"sec":"10","cue":"உங்க கருத்தைக்","clip":"both"}]
+Clips (assets/crime_like.mov, crime_sub.mov, crime_subscribe.mov) are made by crime/subbtn.py; build.py lays them over the video.
