@@ -1,19 +1,19 @@
-# Tamil Kids Story (Gemini only)
+# Solved Crime Files - Tamil
 
-Script, voices and animated clips all come straight from the Google Gemini API. No Puter, no Node.
+Tamil true-crime YouTube channel, produced end to end with GitHub Actions. One folder per case in `crime/<case>/`: `script.txt`, `scenes.json`, `plan.json`, `subs_en.txt`, `youtube.json`, `shorts.json`, `thumb_prompts.json`.
+
+## Pipeline (Actions > Run workflow, input `case`)
+1. `crime-voice-full`: Gemini Charon voice per script section.
+2. `crime-pictures`: story pictures (Cloudflare FLUX.2 klein, 16:9), about one per 7 seconds.
+3. `crime-manim`: animated clips (timelines, charts) from `crime/manim_scenes.py`, overlaid by the build.
+4. `crime-build`: video with captions, music, channel intro and Manim overlays.
+5. `crime-shorts`: three Shorts cut from the video (no text on the frames).
+6. `crime-thumb-gemini` and `crime/thumb_layouts.py` (board, circle, split): thumbnails, a new layout each episode.
+7. After approval: `crime-upload` (private), `crime-captions` (Tamil + English), `crime-thumb-set`, `crime-shorts-upload`, `crime-playlists`.
+
+Other tools: `crime-channel` (channel branding and about text), `crime-desc` and `crime-desc-replace` (edit descriptions of uploaded videos).
 
 ## Secrets (Settings > Secrets and variables > Actions)
-- `GEMINI_API_KEY` : key from https://aistudio.google.com/apikey (billing must be enabled, Veo is paid)
-- `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_REFRESH_TOKEN` : YouTube upload
+`GEMINI_API_KEY`, `CF_ACCOUNT_ID`, `CF_API_TOKEN` (optional `CF_ACCOUNT_ID_2`, `CF_API_TOKEN_2`), `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_REFRESH_TOKEN`.
 
-## Optional variables
-`LLM_MODEL` (gemini-3.8-flash), `TTS_MODEL` (comma list, rotated: gemini-3.8-flash-tts,gemini-3.8-flash-lite-tts,gemini-3.1-flash-tts-preview), `VIDEO_MODEL` (gemini-omni-1.1-flash),
-`VIDEO_RES` (360p default, 720p costs 3x), `VID_CONCURRENCY` (3), `NARRATOR_VOICE`, `VOICE_MAP`, `INTRO`, `INTRO_SECONDS`, `CHANNEL_NAME`, `YT_PRIVACY`.
-
-## Test in this order
-1. Actions > Run workflow: `upload=false`, `dry_video=true`. Costs almost nothing (text + voice only, placeholder clips). Check layout, voices, intro, logo, outro.
-2. Same with `dry_video=false`: real Veo clips, no upload. This is the paid test, one video.
-3. Happy with it? Schedule runs by itself (3 slots a day).
-
-## Cost
-Each video asks Veo for 16 clips of 4-8 s (a story of about 2 minutes). At Veo 3.1 Lite prices that is roughly 90-130 s of generated video per story, so check the current price on the Gemini API pricing page and set a billing budget alert in Google AI Studio.
+See `crime/NEXT_EPISODE.md` for the episode checklist.
