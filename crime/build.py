@@ -121,6 +121,19 @@ if anims:
     run("ffmpeg", "-v", "error", "-y", "-i", f"{WORK}/main.mp4", *ins2, "-filter_complex", ";".join(chain), "-map", f"[{last}]", "-map", "0:a", "-c:v", "libx264", "-preset", "medium", "-crf", "23", "-c:a", "copy", "-movflags", "+faststart", f"{WORK}/main_anim.mp4")
     os.replace(f"{WORK}/main_anim.mp4", f"{WORK}/main.mp4"); print(f"manim clips used: {[a['clip'] for a in anims]}")
 
+# ---- LIKE / SUBSCRIBE buttons sliding in at the left side (assets/crime_subscribe.mov, made by crime/subbtn.py): plan.json "buttons": [{"sec","cue"}]
+BTN = "assets/crime_subscribe.mov"
+btns = plan.get("buttons", []) if os.path.exists(BTN) else []
+if btns:
+    ins3, chain, last = [], [], "0:v"
+    for k, b in enumerate(btns):
+        t0 = when(b["sec"], b.get("cue")) + b.get("delay", 0.0); t1 = min(t0 + dur(BTN), TOTAL + 1.0)
+        ins3 += ["-i", BTN]
+        chain.append(f"[{k + 1}:v]setpts=PTS-STARTPTS+{t0:.3f}/TB,format=argb[bt{k}];[{last}][bt{k}]overlay=x=40:y=H-h-20:enable='between(t,{t0:.3f},{t1:.3f})':eof_action=pass:format=auto[ob{k}]")
+        last = f"ob{k}"
+    run("ffmpeg", "-v", "error", "-y", "-i", f"{WORK}/main.mp4", *ins3, "-filter_complex", ";".join(chain), "-map", f"[{last}]", "-map", "0:a", "-c:v", "libx264", "-preset", "medium", "-crf", "23", "-c:a", "copy", "-movflags", "+faststart", f"{WORK}/main_btn.mp4")
+    os.replace(f"{WORK}/main_btn.mp4", f"{WORK}/main.mp4"); print(f"like/subscribe buttons shown {len(btns)} time(s)")
+
 # ---- channel intro (title clip, channel name, EPISODE card) right after the hook (script section 01)
 if plan.get("episode"):
     import sys; sys.path.insert(0, "crime"); import intro
