@@ -1,0 +1,36 @@
+name: Crime HF Video Test (free ZeroGPU)
+on:
+  workflow_dispatch:
+    inputs:
+      imgs:
+        description: "comma separated image paths in the repo"
+        default: "crime/hftest/test1.jpg,crime/hftest/test2.jpg"
+      prompt:
+        description: "motion prompt"
+        default: ""
+      secs:
+        description: "clip seconds"
+        default: "3.5"
+permissions:
+  contents: write
+jobs:
+  hf:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      IMGS: ${{ github.event.inputs.imgs }}
+      PROMPT: ${{ github.event.inputs.prompt }}
+      SECS: ${{ github.event.inputs.secs }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install gradio_client
+      - run: python crime/hf_video.py
+      - name: Save to the hftest-out branch
+        if: always()
+        run: |
+          ls out/* >/dev/null 2>&1 || exit 0
+          mkdir -p /tmp/s && cp out/* /tmp/s/
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          git checkout -q --orphan hftest-out && git rm -rfq . && cp /tmp/s/* . && git add -A
+          git commit -qm "hf video test" && git push -f origin hftest-out
