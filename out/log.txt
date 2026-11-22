@@ -1,0 +1,10 @@
+OK out/1_klein4b_old_1.jpg (1280, 720) 7.9 s
+OK out/2_klein4b_vivid_1.jpg (1280, 720) 7.7 s
+OK out/3_klein9b_vivid_1.jpg (1280, 720) 11.9 s
+OK out/4_fluxdev_vivid_1.jpg (1280, 720) 11.1 s
+OK out/5_gemini_vivid_1.jpg
+OK out/1_klein4b_old_31.jpg (1280, 720) 11.2 s
+OK out/2_klein4b_vivid_31.jpg (1280, 720) 9.1 s
+OK out/3_klein9b_vivid_31.jpg (1280, 720) 9.8 s
+OK out/4_fluxdev_vivid_31.jpg (1280, 720) 9.5 s
+OK out/5_gemini_vivid_31.jpg
