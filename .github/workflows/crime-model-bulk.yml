@@ -1,0 +1,26 @@
+name: Crime Image Bulk Test 9B
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  t:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      CF_ACCOUNT_ID_2: ${{ secrets.CF_ACCOUNT_ID_2 }}
+      CF_API_TOKEN_2: ${{ secrets.CF_API_TOKEN_2 }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install pillow
+      - run: python crime/model_bulk.py
+      - name: Save to bulktest-out
+        if: always()
+        run: |
+          ls out/* >/dev/null 2>&1 || exit 0
+          mkdir -p /tmp/s && cp out/* /tmp/s/
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          git checkout -q --orphan bulktest-out && git rm -rfq . && cp /tmp/s/* . && git add -A
+          git commit -qm "bulk test" && git push -f origin bulktest-out
