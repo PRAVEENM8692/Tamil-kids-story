@@ -18,5 +18,10 @@
   "ep": 12,
   "case": "tanishq3",
   "layout": "photo circle + masked figure + yellow strip (HTML/Playwright, ZWNJ fix for னா)"
+ },
+ {
+  "ep": 13,
+  "case": "samayapuram",
+  "layout": "left text stack on dark gradient + red tilted question box over Gemini silhouette picture (HTML/Playwright; 'லை' fix = clip the ை prefix from 'கை' and place it before ல)"
  }
 ]
