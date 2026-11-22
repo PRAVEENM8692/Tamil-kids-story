@@ -6,8 +6,8 @@ ACCTS = [(i.strip(), t.strip()) for i, t in ((os.environ.get("CF_ACCOUNT_ID"), o
 CUR = 0     # index of the Cloudflare account in use; moves to the next one when the daily free limit (HTTP 429, code 4006) is hit
 CF_ID, CF_TOKEN = ACCTS[0] if ACCTS else (None, None)
 SCENES = os.environ.get("SCENES") or "crime/alavandar/scenes.json"
-STYLE = ("Indian crime comic book illustration, bold clean black ink outlines, flat colours with soft cel shading, "
-         "muted vintage palette of sepia, teal and amber, dramatic film-noir lighting, richly detailed background, expressive faces, cinematic. ")
+STYLE = ("Vibrant colourful graphic-novel comic illustration, bold saturated colours, thick black ink outlines, high contrast dramatic lighting with glowing red, orange and electric teal accents, dynamic low camera angle, rich detailed background, expressive faces, eye-catching movie-poster look, cinematic. ")
+MODEL = os.environ.get("IMG_MODEL") or "flux-2-klein-9b"
 END = " Clean floor, calm tidy scene. Nothing cut off at the frame edges. No text, no letters, no numbers, no captions, no watermark, no border."
 
 def draw(prompt, dst):
@@ -16,7 +16,7 @@ def draw(prompt, dst):
     last = None
     for n in range(4 + len(ACCTS)):
         CF_ID, CF_TOKEN = ACCTS[CUR]
-        url = f"https://api.cloudflare.com/client/v4/accounts/{CF_ID}/ai/run/@cf/black-forest-labs/flux-2-klein-4b"
+        url = f"https://api.cloudflare.com/client/v4/accounts/{CF_ID}/ai/run/@cf/black-forest-labs/{MODEL}"
         try:
             b = "----crimeboundary7f3a"
             parts = {"prompt": prompt[:2000], "width": "1280", "height": "720"}
