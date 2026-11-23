@@ -23,5 +23,10 @@
   "ep": 13,
   "case": "samayapuram",
   "layout": "left text stack on dark gradient + red tilted question box over Gemini silhouette picture (HTML/Playwright; 'லை' fix = clip the ை prefix from 'கை' and place it before ல)"
+ },
+ {
+  "ep": 14,
+  "case": "koodathayi",
+  "layout": "giant yellow number 6 hero + red tilted question strip over Gemini grave-vaults picture (HTML/Playwright; no ை-after-ல words used)"
  }
 ]
