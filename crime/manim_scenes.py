@@ -86,3 +86,15 @@ class SamayapuramRoute(Scene):     # samayapuram: Trichy to Thoothukudi, about 3
         km = T("சுமார் 300 கி.மீ", 40, WHITE).move_to(ORIGIN + UP * 0.2).rotate(-0.35)
         self.play(FadeIn(km), run_time=0.8)
         note = T("சிசிடிவி காட்டிக் கொடுத்தது", 30, GRN).to_edge(DOWN, buff=0.6); self.play(FadeIn(note), run_time=0.8); self.wait(2.0)
+
+class KoodathayiGaps(Scene):       # koodathayi: the gap between deaths shrinks, as reported by the SP (about 10 s)
+    def construct(self):
+        ttl = title("சாவுகளுக்கு இடையிலான இடைவெளி"); self.play(Write(ttl), run_time=1.0)
+        line = Line(LEFT * 5.2, RIGHT * 5.2, color=GREY, stroke_width=4).shift(DOWN * 0.3); self.play(Create(line), run_time=0.8)
+        xs = [-5.2, -1.6, 0.8, 2.6]; dots = [Dot(RIGHT * x + DOWN * 0.3, radius=0.18, color=RED) for x in xs]
+        gaps = [("6 ஆண்டு", -3.4), ("3 ஆண்டு", -0.4), ("2.5 ஆண்டு", 1.7)]
+        self.play(FadeIn(dots[0]), run_time=0.4)
+        for i, (g, x) in enumerate(gaps):
+            lab = T(g, 30, YEL).move_to(RIGHT * x + UP * 0.7)
+            self.play(FadeIn(dots[i + 1], scale=1.6), FadeIn(lab), run_time=0.9)
+        note = T("இடைவெளி சுருங்கிக்கொண்டே வந்தது", 32, GRN).to_edge(DOWN, buff=0.7); self.play(FadeIn(note), run_time=0.8); self.wait(2.2)
