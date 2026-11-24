@@ -98,3 +98,19 @@ class KoodathayiGaps(Scene):       # koodathayi: the gap between deaths shrinks,
             lab = T(g, 30, YEL).move_to(RIGHT * x + UP * 0.7)
             self.play(FadeIn(dots[i + 1], scale=1.6), FadeIn(lab), run_time=0.9)
         note = T("இடைவெளி சுருங்கிக்கொண்டே வந்தது", 32, GRN).to_edge(DOWN, buff=0.7); self.play(FadeIn(note), run_time=0.8); self.wait(2.2)
+
+class ShraddhaLocations(Scene):    # shraddha: the three traces that all pointed to the same area, as reported (about 11 s)
+    def construct(self):
+        ttl = title("மூணு அடையாளம், ஒரே இடம்"); self.play(Write(ttl), run_time=1.0)
+        labels = ["போன் லொகேஷன்", "வங்கிப் பரிவர்த்தனை", "இன்ஸ்டாகிராம் சேட்"]
+        ys = [1.4, 0.0, -1.4]
+        boxes = []
+        for lab, y in zip(labels, ys):
+            t = T(lab, 30, WHITE); bx = RoundedRectangle(corner_radius=0.2, width=4.6, height=0.9, color=YEL, stroke_width=3).move_to(LEFT * 3.6 + UP * y)
+            t.move_to(bx.get_center()); boxes.append(VGroup(bx, t))
+        pin = VGroup(Dot(RIGHT * 3.8, radius=0.3, color=RED), Dot(RIGHT * 3.8, radius=0.12, color=WHITE)); place = T("மெஹ்ராலி பகுதி", 32, RED).next_to(pin, DOWN, buff=0.35)
+        self.play(FadeIn(pin, scale=1.4), FadeIn(place), run_time=0.8)
+        for b in boxes:
+            arrow = Arrow(b.get_right(), pin.get_left(), buff=0.25, color=GRN, stroke_width=5)
+            self.play(FadeIn(b, shift=RIGHT * 0.3), GrowArrow(arrow), run_time=0.9)
+        note = T("வீட்டை விட்டுப் போனவளின் அடையாளங்கள் அங்கேயே இருந்தன", 28, GRN).to_edge(DOWN, buff=0.6); self.play(FadeIn(note), run_time=0.8); self.wait(2.0)

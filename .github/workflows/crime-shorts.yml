@@ -15,11 +15,16 @@ jobs:
       CASE: ${{ github.event.inputs.case }}
       FONT: Noto Sans Tamil
       FONTSDIR: /usr/share/fonts/truetype/noto
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      OUTRO_VOICE: /tmp/outro_voice.mp3
     steps:
       - uses: actions/checkout@v4
       - run: |
           sudo apt-get update -y
           sudo apt-get install -y ffmpeg fonts-noto-core libass9
+          pip install requests numpy
+      - name: Closing voice line for the Shorts
+        run: python3 crime/outro_voice.py /tmp/outro_voice.mp3
       - name: Get the finished episode
         run: |
           mkdir -p ep

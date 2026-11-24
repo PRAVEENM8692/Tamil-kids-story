@@ -7,6 +7,10 @@ import json, os, subprocess, sys
 CASE, VIDEO, OUT = sys.argv[1:4]
 FONT = os.environ.get("FONT") or "FreeSerif"
 FONTSDIR = os.environ.get("FONTSDIR") or "/usr/share/fonts/truetype/freefont"
+OUTRO_VOICE = os.environ.get("OUTRO_VOICE") or ""     # mp3 with the closing line (crime/outro_voice.py); empty = no closing card
+OUTRO_LINES = os.environ.get("OUTRO_TEXT") or "முழு வீடியோவுக்கு\\Nரிலேட்டட் வீடியோ லிங்கைப்\\Nபாருங்கள்"
+BTN = "assets/crime_subscribe.mov"      # LIKE then SUBSCRIBE buttons (7 s), shown at the bottom while the closing voice plays
+OUTRO_LEN = 7.0
 os.makedirs(OUT, exist_ok=True)
 def sec(s):
     h, m, r = s.split(":"); x, ms = r.split(","); return int(h) * 3600 + int(m) * 60 + int(x) + int(ms) / 1000
@@ -15,6 +19,33 @@ def ts(t):
 cues = {}
 for b in open(f"crime/{CASE}/subs_ta.srt", encoding="utf-8").read().strip().split("\n\n"):
     l = b.split("\n"); a, e = l[1].split(" --> "); cues[int(l[0])] = (sec(a), sec(e), " ".join(l[2:]))
+def add_outro(sid, t1):
+    """Closing card (about 7 s): dark blurred picture, a text card with the line, the closing voice, LIKE + SUBSCRIBE buttons at the bottom."""
+    base = f"{OUT}/{sid}"
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{t1 - 0.4:.2f}", "-i", VIDEO, "-frames:v", "1", f"{base}_last.png"], check=True)
+    ass = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 0
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: card,{FONT},92,&H0000F0FF,&H000000FF,&H001010B0,&H001010B0,1,0,0,0,100,100,0,0,3,26,0,5,60,60,0,1
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,{ts(0)},{ts(OUTRO_LEN)},card,,0,0,0,,{{\\fad(250,300)}}{OUTRO_LINES}
+"""
+    af = f"{base}_outro.ass"; open(af, "w", encoding="utf-8").write(ass)
+    fc = ("[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=40:6,eq=brightness=-0.32,format=yuv420p[bg];"
+          f"[bg]ass={af}:fontsdir={FONTSDIR}[tx];[1:v]format=rgba[bt];[tx][bt]overlay=(W-w)/2:H-h-230:shortest=1,fps=30,format=yuv420p[v];"
+          f"[2:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay=500|500,apad,atrim=0:{OUTRO_LEN}[a]")
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-loop", "1", "-t", str(OUTRO_LEN), "-i", f"{base}_last.png", "-i", BTN, "-i", OUTRO_VOICE, "-filter_complex", fc,
+                    "-map", "[v]", "-map", "[a]", "-r", "30", "-c:v", "libx264", "-preset", "veryfast", "-crf", "22", "-c:a", "aac", "-b:a", "160k", "-t", str(OUTRO_LEN), f"{base}_outro.mp4"], check=True)
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", f"{base}.mp4", "-i", f"{base}_outro.mp4", "-filter_complex",
+                    "[0:v]fps=30,format=yuv420p[v0];[1:v]fps=30,format=yuv420p[v1];[0:a]aformat=sample_rates=44100:channel_layouts=stereo[a0];[1:a]aformat=sample_rates=44100:channel_layouts=stereo[a1];[v0][a0][v1][a1]concat=n=2:v=1:a=1[v][a]",
+                    "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-preset", "veryfast", "-crf", "22", "-c:a", "aac", "-b:a", "160k", f"{base}_final.mp4"], check=True)
+    for x in ("_last.png", "_outro.ass", "_outro.mp4"): os.remove(base + x)
+    os.replace(f"{base}_final.mp4", f"{base}.mp4"); print(sid, "closing card added")
 for sp in json.load(open(f"crime/{CASE}/shorts.json", encoding="utf-8")):
     t0, t1 = cues[sp["from_cue"]][0], cues[sp["to_cue"]][1] + 0.3
     ass = f"""[Script Info]
@@ -41,4 +72,5 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
           f"ass={af}:fontsdir={FONTSDIR},format=yuv420p[v];[0:a]afade=t=in:d=0.3,afade=t=out:st={t1 - t0 - 0.5:.2f}:d=0.5[a]")
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{t0:.2f}", "-to", f"{t1:.2f}", "-i", VIDEO, "-filter_complex", fc, "-map", "[v]", "-map", "[a]",
                     "-r", "30", "-c:v", "libx264", "-preset", "veryfast", "-crf", "22", "-c:a", "aac", "-b:a", "160k", f"{OUT}/{sp['id']}.mp4"], check=True)
+    if OUTRO_VOICE and os.path.exists(OUTRO_VOICE): add_outro(sp["id"], t1)
     print(sp["id"], f"{t1 - t0:.1f}s")
