@@ -71,6 +71,6 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
           "[b]scale=1080:-2[fg];[bg][fg]overlay=0:(H-h)/2-120,"
           f"ass={af}:fontsdir={FONTSDIR},format=yuv420p[v];[0:a]afade=t=in:d=0.3,afade=t=out:st={t1 - t0 - 0.5:.2f}:d=0.5[a]")
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{t0:.2f}", "-t", f"{t1 - t0:.2f}", "-i", VIDEO, "-filter_complex", fc, "-map", "[v]", "-map", "[a]",
-                    "-r", "30", "-c:v", "libx264", "-preset", "veryfast", "-crf", "22", "-c:a", "aac", "-b:a", "160k", f"{OUT}/{sp['id']}.mp4"], check=True)
+                    "-t", f"{t1 - t0:.2f}", "-r", "30", "-c:v", "libx264", "-preset", "veryfast", "-crf", "22", "-c:a", "aac", "-b:a", "160k", f"{OUT}/{sp['id']}.mp4"], check=True)
     if OUTRO_VOICE and os.path.exists(OUTRO_VOICE): add_outro(sp["id"], t1)
     print(sp["id"], f"{t1 - t0:.1f}s")
