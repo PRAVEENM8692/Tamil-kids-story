@@ -1,0 +1,6 @@
+NEURONS before {"data":null,"errors":[{"message":"not authorized for that account","path":["viewer","accounts","0","aiInferenceAdaptiveGroups"],"extensions":{"code":"authz","timestamp":"2026-11-24T15:53:03.953677252Z","ray_id":"a5f995929b5d7a44-SEA"}}]}
+OK out/a_klein4b_natural_1.jpg (1280, 720) 8.8 s
+FAIL out/b_dreamshaper_natural_1.jpg 410 b'{"errors":[{"message":"AiError: Model has been deprecated: @cf/lykon/dreamshaper-8-lcm was deprecated on 2026-11-20. See the model catalog for alternatives: https://developers.cloudflare.com/workers-ai/models/ (ca9eb72e-9c9f-4244-88af-8834c5a48ff6)","code":5028}],"success":false,"result":{},"message'
+OK out/a_klein4b_natural_2.jpg (1280, 720) 10.7 s
+FAIL out/b_dreamshaper_natural_2.jpg 410 b'{"errors":[{"message":"AiError: Model has been deprecated: @cf/lykon/dreamshaper-8-lcm was deprecated on 2026-11-20. See the model catalog for alternatives: https://developers.cloudflare.com/workers-ai/models/ (e9eb621d-2bbe-4c1e-ac62-9a32a7e25ec5)","code":5028}],"success":false,"result":{},"message'
+NEURONS after {"data":null,"errors":[{"message":"not authorized for that account","path":["viewer","accounts","0","aiInferenceAdaptiveGroups"],"extensions":{"code":"authz","timestamp":"2026-11-24T15:54:29.32939223Z","ray_id":"a5f997abd95b10f7-SEA"}}]}
