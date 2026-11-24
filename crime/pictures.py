@@ -6,8 +6,8 @@ ACCTS = [(i.strip(), t.strip()) for i, t in ((os.environ.get("CF_ACCOUNT_ID"), o
 CUR = 0     # index of the Cloudflare account in use; moves to the next one when the daily free limit (HTTP 429, code 4006) is hit
 CF_ID, CF_TOKEN = ACCTS[0] if ACCTS else (None, None)
 SCENES = os.environ.get("SCENES") or "crime/alavandar/scenes.json"
-STYLE = ("Vibrant colourful graphic-novel comic illustration, bold saturated colours, thick black ink outlines, high contrast dramatic lighting with glowing red, orange and electric teal accents, dynamic low camera angle, rich detailed background, expressive faces, eye-catching movie-poster look, cinematic. ")
-MODEL = os.environ.get("IMG_MODEL") or "flux-2-klein-9b"
+STYLE = ("Indian crime graphic-novel illustration, natural realistic colours, clean ink outlines, soft cinematic lighting, grounded true-to-life palette, detailed background, faceless or turned-away characters, serious documentary mood. ")
+MODEL = os.environ.get("IMG_MODEL") or "flux-2-klein-4b"
 END = " Clean floor, calm tidy scene. Nothing cut off at the frame edges. No text, no letters, no numbers, no captions, no watermark, no border."
 
 def draw(prompt, dst):

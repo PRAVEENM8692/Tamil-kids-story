@@ -20,3 +20,9 @@ Whenever a part of a multi-part case is uploaded (Part 2, Part 3 ...), add its v
 Every episode's plan.json gets "buttons": LIKE alone near the middle, SUBSCRIBE alone a little later, then both together at the closing line. Example:
 "buttons": [{"sec":"05","cue":null,"clip":"like"}, {"sec":"07","cue":null,"clip":"sub"}, {"sec":"10","cue":"உங்க கருத்தைக்","clip":"both"}]
 Clips (assets/crime_like.mov, crime_sub.mov, crime_subscribe.mov) are made by crime/subbtn.py; build.py lays them over the video.
+
+## Picture model (decided 2026-11-24)
+Owner chose flux-2-klein-4b with the natural-colour STYLE now in crime/pictures.py (the vivid style and the 9B model were too colourful; do not use them). About 105 neurons a picture (about 95 a day per account). Dreamshaper-8-lcm was removed by Cloudflare on 2026-11-20; lucid-origin and phoenix-1.0 cost about 2,400-2,850 neurons a picture (only 3-4 a day free), so not used.
+
+## Shorts voice line (decided 2026-11-24)
+Every Short's own voice-over ends with: "முழுமையான வீடியோவுக்கு ரிலேட்டட் லிங்கைப் பார்க்கவும்". Only in Shorts, never in the long video.
