@@ -99,8 +99,16 @@ for k, (num, name, text) in enumerate(secs):
     clean = f"{WORK}/v{num}.wav"; clicks += declick(start[num][3], clean)
     ins += ["-i", clean]; parts.append(f"[{k}]aresample=44100,apad=pad_dur={GAP}[a{k}]")
 n = len(secs)
-fc = ";".join(parts) + ";" + "".join(f"[a{k}]" for k in range(n)) + f"concat=n={n}:v=0:a=1,highpass=f=70,loudnorm=I=-16:TP=-1.5:LRA=9[v];" \
-     f"[{n}]aloop=loop=-1:size=2e9,aresample=44100,volume={plan.get('bgm_volume', 0.07)},afade=t=in:d=2,afade=t=out:st={TOTAL - 2.5:.2f}:d=4[m];[v][m]amix=inputs=2:duration=first:normalize=0[out]"
+if os.environ.get("RJ_VOICE", "1") != "0":
+    # RJ-style studio voice (bass/presence/air EQ, de-esser, compressor, loudness) + radio ducking: the BGM dips while the
+    # narrator speaks and comes back up in the pauses (crime/rj_voice.py). RJ_VOICE=0 brings back the old plain mix.
+    sys.path.insert(0, "crime"); import rj_voice
+    fc = ";".join(parts) + ";" + "".join(f"[a{k}]" for k in range(n)) + f"concat=n={n}:v=0:a=1,{rj_voice.chain(os.environ.get('RJ_PRESET', 'male'))},asplit=2[v][sc];" \
+         f"[{n}]aloop=loop=-1:size=2e9,aresample=44100,volume={plan.get('bgm_volume', 0.07) * 1.6:.3f},afade=t=in:d=2,afade=t=out:st={TOTAL - 2.5:.2f}:d=4[m];" \
+         f"[m][sc]sidechaincompress=threshold=0.03:ratio=6:attack=20:release=350:makeup=1[md];[v][md]amix=inputs=2:duration=first:normalize=0[out]"
+else:
+    fc = ";".join(parts) + ";" + "".join(f"[a{k}]" for k in range(n)) + f"concat=n={n}:v=0:a=1,highpass=f=70,loudnorm=I=-16:TP=-1.5:LRA=9[v];" \
+         f"[{n}]aloop=loop=-1:size=2e9,aresample=44100,volume={plan.get('bgm_volume', 0.07)},afade=t=in:d=2,afade=t=out:st={TOTAL - 2.5:.2f}:d=4[m];[v][m]amix=inputs=2:duration=first:normalize=0[out]"
 run("ffmpeg", "-v", "error", "-y", *ins, "-i", BGM, "-filter_complex", fc, "-map", "[out]", "-t", f"{TOTAL + 1.5:.2f}", "-ar", "44100", f"{WORK}/sound.wav")
 
 # ---- the video
