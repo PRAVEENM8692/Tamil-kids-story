@@ -1,0 +1,75 @@
+name: Crime Kaggle Video Test (free GPU, Wan 2.2)
+on:
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: "scene prompt (empty = default test scene)"
+        default: ""
+      image:
+        description: "repo picture to animate (image-to-video); empty = text-to-video only"
+        default: "crime/hftest/test1.jpg"
+      size:
+        description: "WxH (multiples of 32)"
+        default: "832x480"
+      frames:
+        description: "frames at 24 fps (49 = 2 s, 121 = 5 s)"
+        default: "49"
+      steps:
+        description: "denoising steps"
+        default: "30"
+permissions:
+  contents: write
+jobs:
+  kaggle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+      KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -q kaggle
+      - name: Prepare kernel
+        env:
+          PROMPT: ${{ github.event.inputs.prompt }}
+          IMAGE: ${{ github.event.inputs.image }}
+          SIZE: ${{ github.event.inputs.size }}
+          FRAMES: ${{ github.event.inputs.frames }}
+          STEPS: ${{ github.event.inputs.steps }}
+        run: |
+          test -n "$KAGGLE_USERNAME" -a -n "$KAGGLE_KEY" || { echo "Add KAGGLE_USERNAME and KAGGLE_KEY repo secrets"; exit 1; }
+          mkdir -p /tmp/k && cp crime/kaggle/* /tmp/k/
+          python - <<'PY'
+          import json, os
+          w, h = os.environ["SIZE"].lower().split("x")
+          cfg = {"w": int(w), "h": int(h), "frames": int(os.environ["FRAMES"]), "steps": int(os.environ["STEPS"])}
+          if os.environ.get("PROMPT"): cfg["prompt"] = os.environ["PROMPT"]
+          if os.environ.get("IMAGE"):
+              cfg["image_url"] = f"https://raw.githubusercontent.com/{os.environ['GITHUB_REPOSITORY']}/{os.environ['GITHUB_SHA']}/{os.environ['IMAGE']}"
+          p = "/tmp/k/wan_test.py"; s = open(p).read()
+          open(p, "w").write(s.replace("cfg = {}  # __CFG__", "cfg = " + json.dumps(cfg)))
+          m = "/tmp/k/kernel-metadata.json"; s = open(m).read()
+          open(m, "w").write(s.replace("KAGGLE_USER", os.environ["KAGGLE_USERNAME"]))
+          print(cfg)
+          PY
+      - name: Push and run on Kaggle GPU
+        run: |
+          kaggle kernels push -p /tmp/k
+          K="$KAGGLE_USERNAME/wan22-video-test"
+          sleep 60
+          for i in $(seq 1 220); do
+            S=$(kaggle kernels status "$K" 2>&1 || true); echo "$(date +%T) $S"
+            echo "$S" | grep -qiE 'complete' && break
+            echo "$S" | grep -qiE 'error|cancel' && { kaggle kernels output "$K" -p out || true; cat out/*.log 2>/dev/null | tail -80; exit 1; }
+            sleep 60
+          done
+          kaggle kernels output "$K" -p out
+          ls -laR out; cat out/out/result.json 2>/dev/null || find out -name result.json -exec cat {} \;
+      - name: Save to the kaggle-out branch
+        if: always()
+        run: |
+          mkdir -p /tmp/s; find out -type f \( -name '*.mp4' -o -name '*.json' -o -name '*.log' \) -exec cp {} /tmp/s/ \; 2>/dev/null || true
+          ls /tmp/s/* >/dev/null 2>&1 || exit 0
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          git checkout -q --orphan kaggle-out && git rm -rfq . && cp /tmp/s/* . && git add -A
+          git commit -qm "kaggle wan test" && git push -f origin kaggle-out

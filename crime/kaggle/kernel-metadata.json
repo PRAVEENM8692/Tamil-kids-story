@@ -1,0 +1,14 @@
+{
+  "id": "KAGGLE_USER/wan22-video-test",
+  "title": "wan22-video-test",
+  "code_file": "wan_test.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "machine_shape": "NvidiaTeslaT4",
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": []
+}
