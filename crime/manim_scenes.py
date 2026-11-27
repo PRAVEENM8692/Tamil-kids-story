@@ -114,3 +114,20 @@ class ShraddhaLocations(Scene):    # shraddha: the three traces that all pointed
             arrow = Arrow(b.get_right(), pin.get_left(), buff=0.25, color=GRN, stroke_width=5)
             self.play(FadeIn(b, shift=RIGHT * 0.3), GrowArrow(arrow), run_time=0.9)
         note = T("வீட்டை விட்டுப் போனவளின் அடையாளங்கள் அங்கேயே இருந்தன", 28, GRN).to_edge(DOWN, buff=0.6); self.play(FadeIn(note), run_time=0.8); self.wait(2.0)
+
+
+class GokulrajEvidence(Scene):    # gokulraj: three traces that tied the killing to the accused, as reported (about 11 s)
+    def construct(self):
+        ttl = title("மூணு தடயம், ஒரே உண்மை"); self.play(Write(ttl), run_time=1.0)
+        labels = ["ஜீப் · நம்பர் பிளேட்", "வெள்ளைத் தாள் · கடைக்காரர்", "போன் அழைப்பு · டவர்"]
+        ys = [1.4, 0.0, -1.4]
+        boxes = []
+        for lab, y in zip(labels, ys):
+            t = T(lab, 30, WHITE); bx = RoundedRectangle(corner_radius=0.2, width=5.2, height=0.9, color=YEL, stroke_width=3).move_to(LEFT * 3.4 + UP * y)
+            t.move_to(bx.get_center()); boxes.append(VGroup(bx, t))
+        pin = VGroup(Dot(RIGHT * 3.8, radius=0.3, color=RED), Dot(RIGHT * 3.8, radius=0.12, color=WHITE)); place = T("சங்ககிரி மலைப்பகுதி", 32, RED).next_to(pin, DOWN, buff=0.35)
+        self.play(FadeIn(pin, scale=1.4), FadeIn(place), run_time=0.8)
+        for b in boxes:
+            arrow = Arrow(b.get_right(), pin.get_left(), buff=0.25, color=GRN, stroke_width=5)
+            self.play(FadeIn(b, shift=RIGHT * 0.3), GrowArrow(arrow), run_time=0.9)
+        note = T("தற்கொலை கதையை உடைத்த தடயங்கள்", 28, GRN).to_edge(DOWN, buff=0.6); self.play(FadeIn(note), run_time=0.8); self.wait(2.0)
