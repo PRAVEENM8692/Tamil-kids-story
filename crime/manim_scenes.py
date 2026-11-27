@@ -131,3 +131,20 @@ class GokulrajEvidence(Scene):    # gokulraj: three traces that tied the killing
             arrow = Arrow(b.get_right(), pin.get_left(), buff=0.25, color=GRN, stroke_width=5)
             self.play(FadeIn(b, shift=RIGHT * 0.3), GrowArrow(arrow), run_time=0.9)
         note = T("தற்கொலை கதையை உடைத்த தடயங்கள்", 28, GRN).to_edge(DOWN, buff=0.6); self.play(FadeIn(note), run_time=0.8); self.wait(2.0)
+
+
+class NeerajEvidence(Scene):    # neerajgrover: three slips that gave away the cover-up, as reported (about 11 s)
+    def construct(self):
+        ttl = title("மூணு தவறு, ஒரே உண்மை"); self.play(Write(ttl), run_time=1.0)
+        labels = ["தவறுதலாக எடுத்த அழைப்பு", "இரவல் கார் · பொய்யான பெயர்", "ஒரே ஒரு பூசுன சுவர்"]
+        ys = [1.4, 0.0, -1.4]
+        boxes = []
+        for lab, y in zip(labels, ys):
+            t = T(lab, 30, WHITE); bx = RoundedRectangle(corner_radius=0.2, width=5.6, height=0.9, color=YEL, stroke_width=3).move_to(LEFT * 3.2 + UP * y)
+            t.move_to(bx.get_center()); boxes.append(VGroup(bx, t))
+        pin = VGroup(Dot(RIGHT * 3.9, radius=0.3, color=RED), Dot(RIGHT * 3.9, radius=0.12, color=WHITE)); place = T("மனோர் காட்டுப்பகுதி", 32, RED).next_to(pin, DOWN, buff=0.35)
+        self.play(FadeIn(pin, scale=1.4), FadeIn(place), run_time=0.8)
+        for b in boxes:
+            arrow = Arrow(b.get_right(), pin.get_left(), buff=0.25, color=GRN, stroke_width=5)
+            self.play(FadeIn(b, shift=RIGHT * 0.3), GrowArrow(arrow), run_time=0.9)
+        note = T("மறைக்க நினைத்தவர்களைக் காட்டிக்கொடுத்த தடயங்கள்", 28, GRN).to_edge(DOWN, buff=0.6); self.play(FadeIn(note), run_time=0.8); self.wait(2.0)
