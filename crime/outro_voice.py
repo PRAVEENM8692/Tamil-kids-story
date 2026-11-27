@@ -1,8 +1,13 @@
-"""Make the one-line voice that closes every Short (Gemini Charon, same as the episodes). Usage: python3 crime/outro_voice.py OUT.mp3 ["text"]"""
+"""Make the one-line voice that closes every Short (owner's own AI voice by default, NARRATOR=gemini for Charon). Usage: python3 crime/outro_voice.py OUT.mp3 ["text"]"""
 import base64, os, subprocess, sys, time, wave
 import numpy as np, requests
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import tts_clean
 OUT = sys.argv[1]; TEXT = sys.argv[2] if len(sys.argv) > 2 else "முழு வீடியோவுக்கு, ரிலேட்டட் வீடியோ லிங்கைப் பாருங்கள்."
+if (os.environ.get("NARRATOR") or "myvoice").lower() == "myvoice":     # owner's own AI voice, same as the episodes (2026-11-27)
+    import myvoice_tts
+    myvoice_tts.speak(TEXT, "/tmp/outro.wav")
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", "/tmp/outro.wav", "-b:a", "128k", OUT], check=True)
+    print("outro voice (my voice)", myvoice_tts.STATS); sys.exit(0)
 KEY = os.environ["GEMINI_API_KEY"]; VOICE = os.environ.get("NARRATOR_VOICE") or "Charon"
 MODELS = [m.strip() for m in (os.environ.get("TTS_MODEL") or "gemini-3.8-flash-tts,gemini-3.8-flash-lite-tts,gemini-3.1-flash-tts-preview").split(",") if m.strip()]
 last = ""

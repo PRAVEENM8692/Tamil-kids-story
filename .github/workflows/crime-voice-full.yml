@@ -8,14 +8,20 @@ on:
       only:
         description: "Section numbers to make, comma separated (empty = all)"
         default: ""
+      narrator:
+        description: "myvoice = owner's own AI voice (default), gemini = Charon"
+        default: "myvoice"
 permissions:
   contents: write
 jobs:
   voice:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 300
     env:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      MYVOICE_KEY: ${{ secrets.MYVOICE_KEY }}
+      NARRATOR: ${{ github.event.inputs.narrator || 'myvoice' }}
       TTS_MODEL: ${{ vars.TTS_MODEL }}
       ONLY: ${{ github.event.inputs.only }}
       CASE: ${{ github.event.inputs.case }}
@@ -26,6 +32,9 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y ffmpeg
           pip install requests numpy
+      - name: My own AI voice (decrypt reference, install voice tools)
+        if: ${{ (github.event.inputs.narrator || 'myvoice') == 'myvoice' }}
+        run: bash crime/myvoice_setup.sh
       - run: python crime/voice_full.py
       - name: Save the voice files to the voice-${CASE} branch
         run: |

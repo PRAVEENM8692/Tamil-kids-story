@@ -1,4 +1,5 @@
-"""Tamil crime story channel: narrate a whole script with one Gemini voice, no style instruction (the voice's own pace).
+"""Tamil crime story channel: narrate a whole script with one voice - the owner's own AI voice (NARRATOR=myvoice, default,
+owner's choice 2026-11-27) or one Gemini voice with no style instruction (NARRATOR=gemini, Charon).
 Script file: sections start with a '## NN name' line. Writes out/NN_name.mp3, out/full.mp3 and out/durations.json."""
 import base64, json, os, re, subprocess, sys, time, wave
 import requests
@@ -47,7 +48,19 @@ def tts(text):
         print(f"{model}: {last}"); time.sleep((30 if "429" in last else 8) * (n + 1))
     raise SystemExit(f"Gemini voice failed: {last}")
 
-if not KEY: raise SystemExit("GEMINI_API_KEY is not set")
+NARRATOR = (os.environ.get("NARRATOR") or "myvoice").lower()
+if NARRATOR == "myvoice":
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import myvoice_tts
+
+    def tts(text):
+        """Owner's own AI voice (free Hugging Face GPU first, CPU fallback): same 24 kHz 16-bit PCM as the Gemini path."""
+        import numpy as np, soundfile as sf
+        tmp = "out/_piece.wav"; myvoice_tts.speak(text, tmp)
+        a, _ = sf.read(tmp, dtype="float32"); os.remove(tmp)
+        return (np.clip(a, -1, 1) * 32767).astype(np.int16).tobytes(), "myvoice"
+
+    def clean(pcm): return pcm        # the Gemini end-burst fix is not needed for this voice
+elif not KEY: raise SystemExit("GEMINI_API_KEY is not set")
 secs = [(m.group(1), m.group(2).strip().replace(" ", "_"), m.group(3).strip())
         for m in re.finditer(r"^## (\d+) ([^\n]*)\n(.*?)(?=^## |\Z)", open(SCRIPT, encoding="utf-8").read(), re.S | re.M)]
 only = [s.strip() for s in os.environ.get("ONLY", "").split(",") if s.strip()]
@@ -58,7 +71,7 @@ for num, name, text in secs:
     pcm = b""
     for p in pieces(text):
         a, model = tts(p); a = clean(a); pcm += a + b"\0" * int(24000 * 2 * 0.35)      # a short breath between pieces
-        time.sleep(7)       # stay under the per-minute limit
+        if NARRATOR != "myvoice": time.sleep(7)       # stay under Gemini's per-minute limit
     wav = f"out/{num}_{name}.wav"
     with wave.open(wav, "wb") as w: w.setnchannels(1); w.setsampwidth(2); w.setframerate(24000); w.writeframes(pcm)
     files.append(wav); durs[f"{num}_{name}"] = round(len(pcm) / 48000, 1)
@@ -71,3 +84,4 @@ os.remove("out/list.txt")
 durs["total"] = round(sum(durs.values()), 1)
 json.dump(durs, open("out/durations.json", "w"), ensure_ascii=False, indent=1)
 print("total:", durs["total"], "s")
+if NARRATOR == "myvoice": print("my voice engine use:", myvoice_tts.STATS)

@@ -5,17 +5,23 @@ on:
       case:
         description: "case folder name under crime/ (needs crime/<case>/shorts.json and a built video-<case> branch)"
         default: "uthra"
+      narrator:
+        description: "closing line voice: myvoice = owner's own AI voice (default), gemini = Charon"
+        default: "myvoice"
 permissions:
   contents: write
 jobs:
   shorts:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 90
     env:
       CASE: ${{ github.event.inputs.case }}
       FONT: Noto Sans Tamil
       FONTSDIR: /usr/share/fonts/truetype/noto
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      MYVOICE_KEY: ${{ secrets.MYVOICE_KEY }}
+      NARRATOR: ${{ github.event.inputs.narrator || 'myvoice' }}
       OUTRO_VOICE: /tmp/outro_voice.mp3
     steps:
       - uses: actions/checkout@v4
@@ -23,6 +29,9 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y ffmpeg fonts-noto-core libass9
           pip install requests numpy
+      - name: My own AI voice (decrypt reference, install voice tools)
+        if: ${{ (github.event.inputs.narrator || 'myvoice') == 'myvoice' }}
+        run: bash crime/myvoice_setup.sh
       - name: Closing voice line for the Shorts
         run: python3 crime/outro_voice.py /tmp/outro_voice.mp3
       - name: Get the finished episode
