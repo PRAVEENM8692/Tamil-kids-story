@@ -39,7 +39,7 @@ jobs:
         run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL && df -h /
       - uses: actions/checkout@v4
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
-      - run: pip install -q --index-url https://download.pytorch.org/whl/cpu torch && pip install -q diffusers transformers accelerate sentencepiece protobuf tiktoken imageio imageio-ffmpeg pillow
+      - run: pip install -q --index-url https://download.pytorch.org/whl/cpu torch && pip install -q diffusers "transformers<5" accelerate sentencepiece protobuf tiktoken imageio imageio-ffmpeg pillow
       - run: python crime/ltx_cpu.py
         env: { IMGS: "${{ github.event.inputs.ltx_imgs }}", STEPS: "${{ github.event.inputs.steps }}", OUT: out, HF_TOKEN: "${{ secrets.HF_TOKEN }}" }
       - uses: actions/upload-artifact@v4
