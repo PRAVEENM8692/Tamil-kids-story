@@ -33,5 +33,10 @@
   "ep": 15,
   "case": "shraddha",
   "layout": "torn-newspaper collage: B/W Gemini woman (multiply on paper) with red stamp over eyes + curved arrow, red scribble words, big yellow Tamil headline on navy (user-sent reference template; avoid ை after ல and ஃபை)"
+ },
+ {
+  "ep": 16,
+  "case": "gokulraj",
+  "layout": "navy dark split: big yellow-framed jeep scene with red circle + arrow, two small tilted scene photos (white paper, railway track), round mother inset, blue tag, yellow/white/red outlined headline (HTML/Chrome; ZWNJ after ன before ா)"
  }
 ]
