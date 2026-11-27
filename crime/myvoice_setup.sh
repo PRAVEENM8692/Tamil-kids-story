@@ -8,6 +8,7 @@ pip install -q numpy soundfile gradio_client
 pip install -q torch torchaudio torchcodec --index-url https://download.pytorch.org/whl/cpu
 pip install -q git+https://github.com/ai4bharat/IndicF5.git
 pip install -q "transformers==4.50.0" "datasets==3.6.0" soundfile numpy gradio_client
+pip install -q "pyarrow<18" "numpy<2"
 mkdir -p myvoice
 openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in assets/myvoice/ref.enc -out myvoice/ref.wav -pass env:MYVOICE_KEY
 openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in assets/myvoice/ref_text.enc -out myvoice/ref_text.txt -pass env:MYVOICE_KEY
