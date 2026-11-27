@@ -52,10 +52,16 @@ NARRATOR = (os.environ.get("NARRATOR") or "myvoice").lower()
 if NARRATOR == "myvoice":
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import myvoice_tts
 
+    # which of the owner's 8 mood recordings each script section is spoken with (section name -> mood)
+    MOOD_OF = {"hook": "hook", "disclaimer": "calm", "intro": "calm", "background": "calm", "disappearance": "suspense",
+               "investigation": "suspense", "clue": "suspense", "clues": "suspense", "question": "question", "answer": "twist",
+               "twist": "twist", "arrest": "success", "court": "calm", "verdict": "calm", "sad": "sad", "ending": "end"}
+    CUR_MOOD = [None]
+
     def tts(text):
         """Owner's own AI voice (free Hugging Face GPU first, CPU fallback): same 24 kHz 16-bit PCM as the Gemini path."""
         import numpy as np, soundfile as sf
-        tmp = "out/_piece.wav"; myvoice_tts.speak(text, tmp)
+        tmp = "out/_piece.wav"; myvoice_tts.speak(text, tmp, mood=CUR_MOOD[0])
         a, _ = sf.read(tmp, dtype="float32"); os.remove(tmp)
         return (np.clip(a, -1, 1) * 32767).astype(np.int16).tobytes(), "myvoice"
 
@@ -69,6 +75,8 @@ durs, files = {}, []
 for num, name, text in secs:
     if only and num not in only: continue
     pcm = b""
+    if NARRATOR == "myvoice":
+        CUR_MOOD[0] = MOOD_OF.get(name.split("_")[0].lower(), "calm"); print(f"{num} {name}: mood {CUR_MOOD[0]}")
     for p in pieces(text):
         a, model = tts(p); a = clean(a); pcm += a + b"\0" * int(24000 * 2 * 0.35)      # a short breath between pieces
         if NARRATOR != "myvoice": time.sleep(7)       # stay under Gemini's per-minute limit
