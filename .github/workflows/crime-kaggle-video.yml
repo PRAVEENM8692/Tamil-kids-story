@@ -28,7 +28,11 @@ jobs:
       KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
     steps:
       - uses: actions/checkout@v4
-      - run: pip install -q kaggle
+      - run: pip install -q -U kaggle
+      - name: Kaggle auth (old json key or new KGAT token)
+        run: |
+          case "$KAGGLE_KEY" in KGAT_*) echo "KAGGLE_API_TOKEN=$KAGGLE_KEY" >> $GITHUB_ENV;; esac
+          mkdir -p ~/.kaggle && printf '{"username":"%s","key":"%s"}' "$KAGGLE_USERNAME" "$KAGGLE_KEY" > ~/.kaggle/kaggle.json && chmod 600 ~/.kaggle/kaggle.json
       - name: Prepare kernel
         env:
           PROMPT: ${{ github.event.inputs.prompt }}
