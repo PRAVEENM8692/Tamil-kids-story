@@ -1,0 +1,27 @@
+name: Muse Image Test (Meta Model API)
+on:
+  workflow_dispatch:
+    inputs:
+      scenes:
+        description: "scenes.json path (empty = 3 built-in test scenes)"
+        default: ""
+      only:
+        description: "scene numbers, comma separated (empty = all)"
+        default: ""
+jobs:
+  draw:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      META_API_KEY: ${{ secrets.META_API_KEY }}
+      SCENES: ${{ github.event.inputs.scenes }}
+      ONLY: ${{ github.event.inputs.only }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.10" }
+      - run: pip install -q pillow
+      - run: python crime/muse_image_test.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: muse-image-test, path: out/ }
