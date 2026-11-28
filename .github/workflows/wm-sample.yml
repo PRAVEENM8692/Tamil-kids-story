@@ -1,0 +1,21 @@
+name: Watermark sample
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  s:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - run: |
+          sudo apt-get update -y && sudo apt-get install -y fonts-noto-core libraqm0
+          pip install pillow numpy
+          python crime/wm_sample.py
+          mkdir -p /tmp/s && cp out/*.jpg /tmp/s/
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          git checkout --orphan wm-out && git rm -rfq . && cp /tmp/s/* . && git add *.jpg
+          git commit -qm "wm samples" && git push -f origin wm-out
