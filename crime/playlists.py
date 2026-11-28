@@ -16,7 +16,7 @@ def find_shorts():
         if not tok: break
     print("Shorts found on the channel:", len(out)); return out
 PL = [
- ("பழைய வழக்குகள் | Older Solved Cases", "2026-க்கு முன் நடந்த தீர்ந்த வழக்குகள்.", ["RfsLccFhTGM", "SwKOLgA6htU", "fVTeuVVa2A0", "dnmYgxEv2qc", "oYWyz1SFCK0", "eEn4tz1mMp0", "sCycvjHUkNA", "fXrZIP3bdQU", "HcHojlWGXEY", "aRlfV9zn8vo"], "பழைய வழக்குகள் | Old Solved Cases"),
+ ("பழைய வழக்குகள் | Older Solved Cases", "2026-க்கு முன் நடந்த தீர்ந்த வழக்குகள்.", ["RfsLccFhTGM", "SwKOLgA6htU", "fVTeuVVa2A0", "dnmYgxEv2qc", "oYWyz1SFCK0", "eEn4tz1mMp0", "sCycvjHUkNA", "fXrZIP3bdQU", "HcHojlWGXEY", "aRlfV9zn8vo", "4g7EjkdAHvc"], "பழைய வழக்குகள் | Old Solved Cases"),
  ("புதிய 2026 வழக்குகள் | New 2026 Cases", "2026-ல நடந்த, இப்போ பேசப்படற வழக்குகள்.", ["z9_ZLjTbRu8", "mnRiXwOWtL4", "Pa8K-SDr304", "yHX_psht81Y", "YkWGKy6IbUg", "mxhEsF6M1Vg"], "புதிய வழக்குகள் | New Solved Cases"),
  ("வழக்கு அப்டேட் | Case Updates", "நம்ம வழக்குகளோட இப்போதைய நிலவரம்.", [], None),
  ("ஷார்ட்ஸ் | Crime Shorts", "எல்லா வழக்குகளோட Shorts.", find_shorts(), None),
