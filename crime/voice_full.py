@@ -48,7 +48,9 @@ STYLE_OF = {   # owner 2026-11-28: livelier, expressive storytelling (like a Tam
 CUR_STYLE = [""]
 
 def tts(text):
-    if EXPRESSIVE and CUR_STYLE[0]: text = f"{CUR_STYLE[0]} Say the following in Tamil, with real emotion and expression:\n{text}"
+    # 2026-11-28: the English style line was sometimes READ ALOUD by Gemini (English heard in the video). Never put English in the spoken text.
+    # Expression now comes from the Tamil text itself (punctuation, short sentences). STYLE_PREFIX=1 brings the old prefix back for tests only.
+    if EXPRESSIVE and CUR_STYLE[0] and os.environ.get("STYLE_PREFIX") == "1": text = f"{CUR_STYLE[0]} Say the following in Tamil:\n{text}"
     last = ""
     for n in range(8):
         model = MODELS[0] if n < 3 else MODELS[n % len(MODELS)]     # stay on one model so the voice sounds the same; others only as a fallback
@@ -56,7 +58,12 @@ def tts(text):
             "contents": [{"parts": [{"text": text}]}],
             "generationConfig": {"responseModalities": ["AUDIO"], "speechConfig": {"voiceConfig": {"prebuiltVoiceConfig": {"voiceName": VOICE}}}}})
         if r.status_code < 400:
-            try: return pcm_of(base64.b64decode(r.json()["candidates"][0]["content"]["parts"][0]["inlineData"]["data"])), model
+            try:
+                pcm = pcm_of(base64.b64decode(r.json()["candidates"][0]["content"]["parts"][0]["inlineData"]["data"]))
+                secs_ = len(pcm) / 48000; plain = re.sub(r"\s+", "", text)
+                if secs_ > len(plain) / 8.0 + 2.5 and n < 5:      # far longer than Tamil text needs = extra (English) words were spoken: retry
+                    last = f"clip too long ({secs_:.1f}s for {len(plain)} chars), retrying"
+                else: return pcm, model
             except Exception as e: last = f"no audio in answer: {str(e)[:80]}"
         else:
             last = f"HTTP {r.status_code} {r.text[:300]}"
