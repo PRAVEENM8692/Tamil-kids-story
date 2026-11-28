@@ -1,0 +1,12 @@
+name: Meta Models List (Meta Model API)
+on: workflow_dispatch
+jobs:
+  list:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - env:
+          META_API_KEY: ${{ secrets.META_API_KEY }}
+        run: |
+          curl -s -m 60 -H "Authorization: Bearer $META_API_KEY" https://api.meta.ai/v1/models | python3 -c "import sys,json; d=json.load(sys.stdin); print('MODELS:', [m.get('id') for m in d.get('data', [])] or d)"
+          for p in videos video/generations videos/generations; do echo "POST /v1/$p ->"; curl -s -m 60 -o /dev/null -w "%{http_code}\n" -X POST -H "Authorization: Bearer $META_API_KEY" -H "Content-Type: application/json" -d '{"model":"muse-video","prompt":"test"}' https://api.meta.ai/v1/$p; done
