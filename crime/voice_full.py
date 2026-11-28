@@ -33,7 +33,22 @@ def clean(pcm):
     if ms: print(f'  end burst silenced ({ms} ms)')
     return x.tobytes()
 
+EXPRESSIVE = os.environ.get("EXPRESSIVE", "") == "1"
+STYLE_OF = {   # owner 2026-11-28: livelier, expressive storytelling (like a Tamil crime-show narrator); style line is given to the TTS model, not read aloud
+    "hook": "Narrate like a gripping Tamil crime-show storyteller: low, tense voice, slow build, a sharp pause before the shocking line, then fast and urgent.",
+    "disclaimer": "Speak calmly, clearly and seriously.",
+    "intro": "Warm, engaging storytelling voice with natural variation in pitch.",
+    "disappearance": "Suspenseful and hushed, slow, with dramatic pauses and rising tension.",
+    "clue": "Curious and sharp, building suspense, emphasise key words.",
+    "question": "Direct and teasing, as if asking the audience, pause after the question.",
+    "answer": "Excited revelation, energetic, strong emphasis on each proof, quicker pace then a heavy pause.",
+    "arrest": "Firm, fast, triumphant tone.",
+    "court": "Serious, weighty and measured, emphasise the verdict words.",
+    "ending": "Reflective, warm, then friendly and upbeat for the call to subscribe."}
+CUR_STYLE = [""]
+
 def tts(text):
+    if EXPRESSIVE and CUR_STYLE[0]: text = f"{CUR_STYLE[0]} Say the following in Tamil, with real emotion and expression:\n{text}"
     last = ""
     for n in range(8):
         model = MODELS[0] if n < 3 else MODELS[n % len(MODELS)]     # stay on one model so the voice sounds the same; others only as a fallback
@@ -75,6 +90,7 @@ durs, files = {}, []
 for num, name, text in secs:
     if only and num not in only: continue
     pcm = b""
+    CUR_STYLE[0] = STYLE_OF.get(name.split("_")[0].lower(), "")
     if NARRATOR == "myvoice":
         CUR_MOOD[0] = MOOD_OF.get(name.split("_")[0].lower(), "calm"); print(f"{num} {name}: mood {CUR_MOOD[0]}")
     for p in pieces(text):

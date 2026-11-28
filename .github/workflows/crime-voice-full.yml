@@ -11,6 +11,9 @@ on:
       narrator:
         description: "myvoice = owner's own AI voice (default), gemini = Charon"
         default: "myvoice"
+      expressive:
+        description: "1 = Gemini with per-section expressive style directions"
+        default: ""
 permissions:
   contents: write
 jobs:
@@ -23,6 +26,7 @@ jobs:
       MYVOICE_KEY: ${{ secrets.MYVOICE_KEY }}
       NARRATOR: ${{ github.event.inputs.narrator || 'myvoice' }}
       TTS_MODEL: ${{ vars.TTS_MODEL }}
+      EXPRESSIVE: ${{ github.event.inputs.expressive }}
       ONLY: ${{ github.event.inputs.only }}
       CASE: ${{ github.event.inputs.case }}
       SCRIPT: crime/${{ github.event.inputs.case }}/script.txt
