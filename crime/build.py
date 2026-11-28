@@ -142,6 +142,14 @@ if btns:
     run("ffmpeg", "-v", "error", "-y", "-i", f"{WORK}/main.mp4", *ins3, "-filter_complex", ";".join(chain), "-map", f"[{last}]", "-map", "0:a", "-c:v", "libx264", "-preset", "medium", "-crf", "23", "-c:a", "copy", "-movflags", "+faststart", f"{WORK}/main_btn.mp4")
     os.replace(f"{WORK}/main_btn.mp4", f"{WORK}/main.mp4"); print(f"like/subscribe buttons shown {len(btns)} time(s)")
 
+# ---- channel logo watermark, bottom-right corner, 50% see-through, for the whole video (owner 2026-11-28); LOGO_ON=0 switches it off
+LOGO = "assets/channel_logo.png"
+if os.path.exists(LOGO) and os.environ.get("LOGO_ON", "1") != "0":
+    run("ffmpeg", "-v", "error", "-y", "-i", f"{WORK}/main.mp4", "-loop", "1", "-i", LOGO, "-filter_complex",
+        f"[1:v]scale=256:-1,format=rgba,colorchannelmixer=aa=0.5[lg];[0:v][lg]overlay=x=W-w-22:y=H-h-18:shortest=1:format=auto[o]",
+        "-map", "[o]", "-map", "0:a", "-c:v", "libx264", "-preset", "medium", "-crf", "23", "-c:a", "copy", "-movflags", "+faststart", f"{WORK}/main_logo.mp4")
+    os.replace(f"{WORK}/main_logo.mp4", f"{WORK}/main.mp4"); print("logo watermark added")
+
 # ---- channel intro (title clip, channel name, EPISODE card) right after the hook (script section 01)
 if plan.get("episode"):
     import sys; sys.path.insert(0, "crime"); import intro
