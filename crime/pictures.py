@@ -6,7 +6,7 @@ ACCTS = [(i.strip(), t.strip()) for i, t in ((os.environ.get("CF_ACCOUNT_ID"), o
 CUR = 0     # index of the Cloudflare account in use; moves to the next one when the daily free limit (HTTP 429, code 4006) is hit
 CF_ID, CF_TOKEN = ACCTS[0] if ACCTS else (None, None)
 SCENES = os.environ.get("SCENES") or "crime/alavandar/scenes.json"
-STYLE = os.environ.get("PIC_STYLE") or ("Photorealistic cinematic photograph, shot on a full-frame camera, 35mm lens, natural realistic colours, true-to-life lighting and textures, real Indian location, moody documentary crime-news look, any person only seen from behind or in silhouette with the face not visible. ")
+STYLE = os.environ.get("PIC_STYLE") or ("Indian crime graphic-novel illustration, natural realistic colours, clean ink outlines, soft cinematic lighting, grounded true-to-life palette, detailed background, faceless or turned-away characters, serious documentary mood. ")
 MODEL = os.environ.get("IMG_MODEL") or "flux-2-klein-4b"
 END = " Clean floor, calm tidy scene. Nothing cut off at the frame edges. No text, no letters, no numbers, no captions, no watermark, no border."
 
@@ -43,7 +43,7 @@ for s in json.load(open(SCENES, encoding="utf-8"))["shots"]:
     f = f"out/{s['n']:02d}.jpg"
     if s["n"] in redo and os.path.exists(f): os.remove(f)
     if (only and s["n"] not in only) or (not only and os.path.exists(f)): continue
-    style = STYLE + "Objects only, absolutely no people, no faces, no portraits. " if s["scene"].startswith(("Still life", "A clean anatomy", "Empty")) else STYLE
+    style = STYLE.replace("expressive faces, ", "") + "Objects only, absolutely no people, no faces, no portraits. " if s["scene"].startswith(("Still life", "A clean anatomy", "Empty")) else STYLE
     ok = draw(style + s["scene"] + END, f)
     if ok: done.append(s["n"]); fails = 0; print(f"picture {s['n']:02d} drawn")
     else:
